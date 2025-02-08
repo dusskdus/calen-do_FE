@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Modal from "react-modal";
-import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle } from "react-icons/fa";
+import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle } from "react-icons/fa"; 
 import "../styles/WholeSchedule.css";
 
 Modal.setAppElement("#root");
@@ -100,17 +100,20 @@ const WholeSchedule = () => {
 
   return (
     <div className="schedule-container">
+      {/* App Bar */}
       <div className="app-bar">
         <div className="app-bar-left">
           <FaUser className="icon" />
           <span>nickname의 일정</span>
-        </div>
-        <div className="app-bar-right">
+          </div>
+          <div className="app-bar-right">
           <FaBell className="icon" />
           <FaCog className="icon" />
         </div>
+        
       </div>
 
+      {/* Calendar */}
       <div className="calendar-container">
         <Calendar
           onChange={handleDayClick}
@@ -127,49 +130,62 @@ const WholeSchedule = () => {
         />
       </div>
 
+      {/* Events and To-do List */}
       <div className="schedule-content">
+        {/* 일정 표시 */}
         <div className="schedule-section">
           <h3>일정</h3>
-          {(events[selectedDate.toDateString()] || []).map((event, idx) => (
-            <div key={idx} className="schedule-item">
-              <FaCheckCircle className="event-icon" />
-              <div>
-                <p className="event-title">{event.title}</p>
-                <p className="event-time">{event.time}</p>
+          <div className="schedule-horizontal">
+            {(events[selectedDate.toDateString()] || []).map((event, idx) => (
+              <div key={idx} className="schedule-item-horizontal">
+                <span className="event-dot" style={{ backgroundColor: event.color }}></span>
+                <div>
+                  <p className="event-time">{event.time}</p>
+                  <p className="event-title">{event.title}</p>
+                </div>
+                <div className="delete-container">
+                  <FaTrash
+                    className="delete-icon"
+                    onClick={() => setDeleteConfirm({ show: true, item: event, isTodo: false })}
+                  />
+                </div>
               </div>
-              <FaTrash
-                className="delete-icon"
-                onClick={() => setDeleteConfirm({ show: true, item: event, isTodo: false })}
-              />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         <hr />
 
+        {/* To-do List 표시 */}
         <div className="schedule-section">
           <h3>To-do List</h3>
-          {(todoLists[selectedDate.toDateString()] || []).map((todo, idx) => (
-            <div key={idx} className="todo-item">
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => toggleTodo(todo)}
-              />
-              <span className={todo.completed ? "completed" : ""}>{todo.title}</span>
-              <FaTrash
-                className="delete-icon"
-                onClick={() => setDeleteConfirm({ show: true, item: todo, isTodo: true })}
-              />
-            </div>
-          ))}
+          <div className="todo-list">
+            {(todoLists[selectedDate.toDateString()] || []).map((todo, idx) => (
+              <div key={idx} className="todo-item">
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={() => toggleTodo(todo)}
+                />
+                <span className={todo.completed ? "completed" : "todo-text"}>{todo.title}</span>
+                <div className="delete-container">
+                  <FaTrash
+                    className="delete-icon"
+                    onClick={() => setDeleteConfirm({ show: true, item: todo, isTodo: true })}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* Floating Action Button */}
       <button className="fab" onClick={openModal}>
         <FaPlus />
       </button>
 
+      {/* Add Schedule Modal */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -186,6 +202,7 @@ const WholeSchedule = () => {
           </button>
         </div>
 
+        {/* 일정 제목 */}
         <input
           type="text"
           placeholder="일정 제목"
@@ -194,6 +211,7 @@ const WholeSchedule = () => {
           className="modal-input"
         />
 
+        {/* 색상 및 일정 유형 선택 */}
         <div className="selection-row">
           <label>
             색상:
@@ -216,6 +234,7 @@ const WholeSchedule = () => {
           </label>
         </div>
 
+        {/* 날짜 및 시간 설정 */}
         <div className="date-time">
           <strong>{`${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 (${['일', '월', '화', '수', '목', '금', '토'][selectedDate.getDay()]})`}</strong>
           <input
@@ -226,6 +245,7 @@ const WholeSchedule = () => {
           />
         </div>
 
+        {/* 반복 설정 */}
         <label>
           반복:
           <select
@@ -239,6 +259,7 @@ const WholeSchedule = () => {
           </select>
         </label>
 
+        {/* 알림 설정 */}
         <label>
           알림:
           <select
@@ -252,6 +273,7 @@ const WholeSchedule = () => {
         </label>
       </Modal>
 
+      {/* Delete Confirmation Modal */}
       {deleteConfirm.show && (
         <Modal
           isOpen={deleteConfirm.show}
@@ -261,10 +283,12 @@ const WholeSchedule = () => {
         >
           <h3>일정을 삭제하시겠습니까?</h3>
           <p>"{deleteConfirm.item.title}" 일정을 삭제하시겠습니까?</p>
-          <button onClick={() => handleDelete(deleteConfirm.item, deleteConfirm.isTodo)}>예</button>
-          <button onClick={() => setDeleteConfirm({ show: false, item: null, isTodo: false })}>
-            아니요
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+            <button onClick={() => handleDelete(deleteConfirm.item, deleteConfirm.isTodo)}>예</button>
+            <button onClick={() => setDeleteConfirm({ show: false, item: null, isTodo: false })}>
+              아니요
+            </button>
+          </div>
         </Modal>
       )}
     </div>

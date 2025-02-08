@@ -57,6 +57,11 @@
     background-color: #f9f9f9;
   }
   
+  .completed {
+    text-decoration: line-through;
+    color: grey;
+  }
+  
   .schedule-section,
   .todo-section {
     margin-bottom: 20px;
