@@ -61,7 +61,7 @@
     text-decoration: line-through;
     color: grey;
   }
-  
+
   .schedule-section,
   .todo-section {
     margin-bottom: 20px;
@@ -116,7 +116,7 @@
   .modal-input {
     width: 100%;
     padding: 10px;
-    margin: 10px 0;
+    margin: 10px 10px;
     border: none;
     border-radius: 5px;
     background: white;

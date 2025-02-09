@@ -110,8 +110,32 @@ const WholeSchedule = () => {
           <FaBell className="icon" />
           <FaCog className="icon" />
         </div>
-        
       </div>
+
+      
+{/* 일정 수정 기능 추가 */}
+<div className="schedule-list">
+  {events[selectedDate.toDateString()]?.map((event, index) => (
+    <div 
+      key={index} 
+      className="event-item" 
+      onClick={() => {
+        setNewTitle(event.title);
+        setEventType(event.type);
+        setSelectedColor(event.color);
+        setSelectedTime(event.time);
+        setRepeatOption(event.repeat);
+        setAlertOption(event.alert);
+        setIsModalOpen(true);
+        setDeleteConfirm({ show: false, item: { ...event, index }, isTodo: false });
+      }}
+    >
+      <span>{event.title}</span>
+    </div>
+  ))}
+</div>
+
+      
 
       {/* Calendar */}
       <div className="calendar-container">
@@ -187,91 +211,115 @@ const WholeSchedule = () => {
 
       {/* Add Schedule Modal */}
       <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        className="modal"
-        overlayClassName="overlay"
-      >
-        <div className="modal-header">
-          <button className="close-btn" onClick={closeModal}>
-            &times;
-          </button>
-          <h2>일정 추가</h2>
-          <button className="save-btn" onClick={handleSave}>
-            ✓
-          </button>
-        </div>
+ isOpen={isModalOpen}
+ onRequestClose={closeModal}
+ className="modal"
+ overlayClassName="overlay"
+ style={{
+   content: {
+     bottom: '0',
+     top: 'auto',
+     borderRadius: '20px 20px 0 0',
+     padding: '20px',
+     position: 'fixed',
+     width: '100%',
+     maxWidth: '500px',
+     left: '50%',
+     transform: 'translateX(-50%)'
+   },
+   overlay: {
+     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+     display: 'flex',
+     alignItems: 'flex-end',
+     justifyContent: 'center'
+   }
+ }}
+>
+  <input
+    type="text"
+    placeholder="일정 제목"
+    value={newTitle}
+    onChange={(e) => setNewTitle(e.target.value)}
+    className="modal-input"
+    style={{
+      maxWidth: '100%',
+      boxSizing: 'border-box',
+      border: 'none',
+      backgroundColor: 'transparent',
+      fontSize: '1.5rem',
+      padding: '5px 0',
+      outline: 'none'
+    }}
+  />
 
-        {/* 일정 제목 */}
-        <input
-          type="text"
-          placeholder="일정 제목"
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-          className="modal-input"
-        />
+<div className="selection-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '5px', borderBottom: '2px solid white', paddingBottom: '10px' }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+      색상:
+      <input
+        type="color"
+        value={selectedColor}
+        onChange={(e) => setSelectedColor(e.target.value)}
+        style={{ width: '20%' }}
+      />
+    </label>
 
-        {/* 색상 및 일정 유형 선택 */}
-        <div className="selection-row">
-          <label>
-            색상:
-            <input
-              type="color"
-              value={selectedColor}
-              onChange={(e) => setSelectedColor(e.target.value)}
-            />
-          </label>
+    <select
+      className="dropdown"
+      value={eventType}
+      onChange={(e) => setEventType(e.target.value)}
+      style={{ width: '20%' }}
+    >
+      <option value="Schedule">일정</option>
+      <option value="To-do">To-do</option>
+    </select>
+  </div>
 
-          <label>
-            일정:
-            <select
-              value={eventType}
-              onChange={(e) => setEventType(e.target.value)}
-            >
-              <option value="Schedule">일정</option>
-              <option value="To-do">To-do</option>
-            </select>
-          </label>
-        </div>
+  <div className="date-time" style={{ marginTop: '10px', borderBottom: '2px solid white', paddingBottom: '10px' }}>
+    <strong>{`${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 (${['일', '월', '화', '수', '목', '금', '토'][selectedDate.getDay()]})`}</strong>
+    <input
+      type="text"
+      placeholder="시간 설정 (3:00-4:00PM)"
+      value={selectedTime}
+      onChange={(e) => setSelectedTime(e.target.value)}
+      style={{
+        maxWidth: '100%',
+        boxSizing: 'border-box',
+        border: 'none',
+        backgroundColor: 'transparent',
+        fontSize: '0.8rem',
+        padding: '5px 0',
+        outline: 'none'
+      }}
+    />
+  </div>
 
-        {/* 날짜 및 시간 설정 */}
-        <div className="date-time">
-          <strong>{`${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 (${['일', '월', '화', '수', '목', '금', '토'][selectedDate.getDay()]})`}</strong>
-          <input
-            type="text"
-            placeholder="시간 입력 (예: 12:30 - 1:30 PM)"
-            value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-          />
-        </div>
+  <div className="repeat-alert-section" style={{ marginTop: '10px', borderBottom: '2px solid white', paddingBottom: '10px', width: '100%' }}>
+    <label style={{ marginBottom: '5px'}}>반복:</label>
+    <select
+      className="dropdown"
+      value={repeatOption}
+      onChange={(e) => setRepeatOption(e.target.value)}
+    >
+      <option value="weekly">weekly</option>
+      <option value="monthly">monthly</option>
+      <option value="yearly">yearly</option>
+    </select>
 
-        {/* 반복 설정 */}
-        <label>
-          반복:
-          <select
-            value={repeatOption}
-            onChange={(e) => setRepeatOption(e.target.value)}
-          >
-            <option value="none">반복 없음</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="yearly">Yearly</option>
-          </select>
-        </label>
+    <label style={{ marginTop: '10px' }}>알림:</label>
+    <select
+      className="dropdown"
+      value={alertOption}
+      onChange={(e) => setAlertOption(e.target.value)}
+    >
+      <option value="이벤트 당일">이벤트 당일</option>
+      <option value="1일 전">1일 전</option>
+      <option value="1시간 전">1시간 전</option>
+    </select>
+  </div>
+</Modal>
 
-        {/* 알림 설정 */}
-        <label>
-          알림:
-          <select
-            value={alertOption}
-            onChange={(e) => setAlertOption(e.target.value)}
-          >
-            <option value="이벤트 당일(오전 9시)">이벤트 당일(오전 9시)</option>
-            <option value="1일 전(오전 9시)">1일 전(오전 9시)</option>
-            <option value="1시간 전">1시간 전</option>
-          </select>
-        </label>
-      </Modal>
+
+
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm.show && (
