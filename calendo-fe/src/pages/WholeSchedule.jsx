@@ -19,6 +19,24 @@ const WholeSchedule = () => {
   const [repeatOption, setRepeatOption] = useState("none");
   const [alertOption, setAlertOption] = useState("이벤트 당일(오전 9시)");
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, item: null, isTodo: false });
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+const [selectedProject, setSelectedProject] = useState('nickname의 일정');
+const projects = ['프로젝트 1', '프로젝트 2', '프로젝트 3', '프로젝트 4'];
+
+const projectEvents = {
+  '프로젝트 1': {},
+  '프로젝트 2': {},
+  '프로젝트 3': {},
+  '프로젝트 4': {},
+};
+
+const projectTodos = {
+  '프로젝트 1': {},
+  '프로젝트 2': {},
+  '프로젝트 3': {},
+  '프로젝트 4': {},
+};
+
 
   const handleDayClick = (date) => {
     setSelectedDate(date);
@@ -102,15 +120,39 @@ const WholeSchedule = () => {
     <div className="schedule-container">
       {/* App Bar */}
       <div className="app-bar">
-        <div className="app-bar-left">
-          <FaUser className="icon" />
-          <span>nickname의 일정</span>
-          </div>
-          <div className="app-bar-right">
-          <FaBell className="icon" />
-          <FaCog className="icon" />
+  <div className="app-bar-left">
+    <FaUser className="icon" />
+    <div className="dropdown-container">
+      <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
+        {selectedProject} ▼
+      </button>
+      {dropdownOpen && (
+        <div className="dropdown-menu">
+          {projects.map((project, index) => (
+            <div 
+              key={index} 
+              className="dropdown-item" 
+              onClick={() => {
+                setSelectedProject(project);
+                setDropdownOpen(false);
+                setSelectedDate(new Date());
+                setEvents(projectEvents[project] || {});
+                setTodoLists(projectTodos[project] || {});
+              }}
+            >
+              {project}
+            </div>
+          ))}
         </div>
-      </div>
+      )}
+    </div>
+  </div>
+  <div className="app-bar-right">
+    <FaBell className="icon" />
+    <FaCog className="icon" />
+  </div>
+</div>
+
 
       
 {/* 일정 수정 기능 추가 */}
