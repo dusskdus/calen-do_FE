@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Modal from "react-modal";
-import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle } from "react-icons/fa"; 
+import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle, FaTimes } from "react-icons/fa"; 
 import "../styles/WholeSchedule.css";
 
 Modal.setAppElement("#root");
@@ -20,6 +20,8 @@ const WholeSchedule = () => {
   const [alertOption, setAlertOption] = useState("이벤트 당일(오전 9시)");
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, item: null, isTodo: false });
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(null);
+
 const [selectedProject, setSelectedProject] = useState('nickname의 일정');
 const projects = ['프로젝트 1', '프로젝트 2', '프로젝트 3', '프로젝트 4'];
 
@@ -60,8 +62,23 @@ const projectTodos = {
     setAlertOption("이벤트 당일(오전 9시)");
   };
 
+  const handleEditEvent = (event, index) => {
+    setNewTitle(event.title);
+    setEventType(event.type);
+    setSelectedColor(event.color);
+    setSelectedTime(event.time);
+    setRepeatOption(event.repeat);
+    setAlertOption(event.alert);
+    setEditingIndex(index); // 수정 모드 진입
+    setIsModalOpen(true);
+};
+
+  
+
   const handleSave = () => {
     const dateKey = selectedDate.toDateString();
+    let updatedEvents = { ...events };
+
     const newItem = {
       title: newTitle,
       type: eventType,
@@ -72,20 +89,67 @@ const projectTodos = {
       completed: false,
     };
 
-    if (eventType === "Schedule") {
-      setEvents((prev) => ({
-        ...prev,
-        [dateKey]: [...(prev[dateKey] || []), newItem],
-      }));
+    if (editingIndex !== null) {
+      // 수정 모드: 기존 일정 수정
+      if (!updatedEvents[dateKey]) {
+        updatedEvents[dateKey] = [];
+      }
+      updatedEvents[dateKey][editingIndex] = newItem;
+      setEditingIndex(null);
     } else {
-      setTodoLists((prev) => ({
-        ...prev,
-        [dateKey]: [...(prev[dateKey] || []), newItem],
-      }));
+      // 새 일정 추가
+      if (!updatedEvents[dateKey]) {
+        updatedEvents[dateKey] = [];
+      }
+      updatedEvents[dateKey].push(newItem);
+
+      // 🔹 반복 일정 추가
+      if (repeatOption === "weekly") {
+        for (let i = 1; i <= 10; i++) { // 10주 동안 반복
+          let nextDate = new Date(selectedDate);
+          nextDate.setDate(nextDate.getDate() + i * 7);
+          const nextDateKey = nextDate.toDateString();
+
+          if (!updatedEvents[nextDateKey]) {
+            updatedEvents[nextDateKey] = [];
+          }
+          updatedEvents[nextDateKey].push({ ...newItem });
+        }
+      }
+
+      if (repeatOption === "monthly") {
+        for (let i = 1; i <= 12; i++) { // 12개월 동안 반복
+          let nextDate = new Date(selectedDate);
+          nextDate.setMonth(nextDate.getMonth() + i);
+          const nextDateKey = nextDate.toDateString();
+
+          if (!updatedEvents[nextDateKey]) {
+            updatedEvents[nextDateKey] = [];
+          }
+          updatedEvents[nextDateKey].push({ ...newItem });
+        }
+      }
+
+      if (repeatOption === "yearly") {
+        for (let i = 1; i <= 5; i++) { // 5년 동안 반복
+          let nextDate = new Date(selectedDate);
+          nextDate.setFullYear(selectedDate.getFullYear() + i);
+          const nextDateKey = nextDate.toDateString();
+
+          if (!updatedEvents[nextDateKey]) {
+            updatedEvents[nextDateKey] = [];
+          }
+          updatedEvents[nextDateKey].push({ ...newItem });
+        }
+      }
     }
 
-    closeModal();
-  };
+    setEvents(updatedEvents);
+    closeModal(); // 💡 수정: 여기에서 `return` 문을 넣지 않도록 변경
+};
+
+
+
 
   const handleDelete = (item, isTodo) => {
     const dateKey = selectedDate.toDateString();
@@ -154,31 +218,6 @@ const projectTodos = {
 </div>
 
 
-      
-{/* 일정 수정 기능 추가 */}
-<div className="schedule-list">
-  {events[selectedDate.toDateString()]?.map((event, index) => (
-    <div 
-      key={index} 
-      className="event-item" 
-      onClick={() => {
-        setNewTitle(event.title);
-        setEventType(event.type);
-        setSelectedColor(event.color);
-        setSelectedTime(event.time);
-        setRepeatOption(event.repeat);
-        setAlertOption(event.alert);
-        setIsModalOpen(true);
-        setDeleteConfirm({ show: false, item: { ...event, index }, isTodo: false });
-      }}
-    >
-      <span>{event.title}</span>
-    </div>
-  ))}
-</div>
-
-      
-
       {/* Calendar */}
       <div className="calendar-container">
         <Calendar
@@ -202,21 +241,33 @@ const projectTodos = {
         <div className="schedule-section">
           <h3>일정</h3>
           <div className="schedule-horizontal">
-            {(events[selectedDate.toDateString()] || []).map((event, idx) => (
-              <div key={idx} className="schedule-item-horizontal">
-                <span className="event-dot" style={{ backgroundColor: event.color }}></span>
-                <div>
-                  <p className="event-time">{event.time}</p>
-                  <p className="event-title">{event.title}</p>
-                </div>
-                <div className="delete-container">
-                  <FaTrash
-                    className="delete-icon"
-                    onClick={() => setDeleteConfirm({ show: true, item: event, isTodo: false })}
-                  />
-                </div>
-              </div>
-            ))}
+          <div className="schedule-list">
+  {(events[selectedDate.toDateString()] || []).map((event, index) => (
+    <div
+      key={index}
+      className="schedule-item"
+      onClick={() => handleEditEvent(event, index)} // ✅ 클릭 시 일정 수정 모달 열기
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "10px",
+        borderBottom: "1px solid #ddd",
+        cursor: "pointer",
+      }}
+    >
+      <span>{event.title}</span>
+      <FaTrash
+        className="delete-icon"
+        onClick={(e) => {
+          e.stopPropagation(); // 삭제 버튼 클릭 시 모달 안 뜨도록 이벤트 버블링 방지
+          setDeleteConfirm({ show: true, item: event, isTodo: false });
+        }}
+        style={{ cursor: "pointer", color: "red" }}
+      />
+    </div>
+  ))}
+</div>
           </div>
         </div>
 
@@ -277,6 +328,11 @@ const projectTodos = {
    }
  }}
 >
+        <div className="modal-header">
+          <button className="close-btn" onClick={closeModal}> &times; </button>
+          <button className="save-btn" onClick={handleSave}> ✓ </button>
+        </div>
+
   <input
     type="text"
     placeholder="일정 제목"
@@ -335,18 +391,24 @@ const projectTodos = {
     />
   </div>
 
-  <div className="repeat-alert-section" style={{ marginTop: '10px', borderBottom: '2px solid white', paddingBottom: '10px', width: '100%' }}>
+  <div style={{ width: '100%', borderBottom: '2px solid white', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+  <div className="repeat-section" style={{ width: '25%' }}>
     <label style={{ marginBottom: '5px'}}>반복:</label>
     <select
       className="dropdown"
       value={repeatOption}
       onChange={(e) => setRepeatOption(e.target.value)}
+      style={{ width: '100%' }} // 선택 박스를 부모 크기에 맞춤
     >
+      <option value = "none">반복 없음</option>
       <option value="weekly">weekly</option>
       <option value="monthly">monthly</option>
       <option value="yearly">yearly</option>
     </select>
+  </div>
+  </div>
 
+  <div className="alert-section" style={{ marginTop: '10px', width:'25%' }}>
     <label style={{ marginTop: '10px' }}>알림:</label>
     <select
       className="dropdown"
