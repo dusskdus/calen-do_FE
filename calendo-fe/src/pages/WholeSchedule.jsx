@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Modal from "react-modal";
-import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle, FaTimes } from "react-icons/fa"; 
+import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle, FaTimes, FaClock, FaFileAlt } from "react-icons/fa"; 
 import "../styles/WholeSchedule.css";
 
 Modal.setAppElement("#root");
@@ -21,24 +21,18 @@ const WholeSchedule = () => {
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, item: null, isTodo: false });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [projects, setProjects] = useState(["내 일정"]);
+  const [selectedProject, setSelectedProject] = useState("내 일정");
+  // 프로젝트별 데이터 저장
+  const [projectData, setProjectData] = useState({
+    "내 일정": { events: {}, todoLists: {} }
+  });
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
 
-const [selectedProject, setSelectedProject] = useState('nickname의 일정');
-const projects = ['프로젝트 1', '프로젝트 2', '프로젝트 3', '프로젝트 4'];
-
-const projectEvents = {
-  '프로젝트 1': {},
-  '프로젝트 2': {},
-  '프로젝트 3': {},
-  '프로젝트 4': {},
-};
-
-const projectTodos = {
-  '프로젝트 1': {},
-  '프로젝트 2': {},
-  '프로젝트 3': {},
-  '프로젝트 4': {},
-};
-
+  // 현재 선택된 프로젝트의 데이터를 불러옴
+  const currentEvents = projectData[selectedProject]?.events || {};
+  const currentTodoLists = projectData[selectedProject]?.todoLists || {};
 
   const handleDayClick = (date) => {
     setSelectedDate(date);
@@ -73,7 +67,28 @@ const projectTodos = {
     setIsModalOpen(true);
 };
 
-  
+
+const openProjectModal = () => {
+  setIsProjectModalOpen(true);
+};
+
+const closeProjectModal = () => {
+  setIsProjectModalOpen(false);
+  setNewProjectName("");
+};
+
+const handleCreateProject = () => {
+  if (newProjectName.trim() !== "") {
+    setProjects((prevProjects) =>
+      prevProjects.includes("내 일정")
+        ? [...prevProjects, newProjectName]
+        : ["내 일정", newProjectName]
+    );
+    setSelectedProject(newProjectName);
+    closeProjectModal();
+  }
+};
+
 
 const handleSave = () => {
   const dateKey = selectedDate.toDateString();
@@ -147,10 +162,6 @@ const handleSave = () => {
   closeModal();
 };
 
-
-
-
-
   const handleDelete = (item, isTodo) => {
     const dateKey = selectedDate.toDateString();
 
@@ -184,38 +195,57 @@ const handleSave = () => {
     <div className="schedule-container">
       {/* App Bar */}
       <div className="app-bar">
-  <div className="app-bar-left">
-    <FaUser className="icon" />
+        <div className="app-bar-left">
+        <FaUser className="icon" />
     <div className="dropdown-container">
       <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
-        {selectedProject} ▼
-      </button>
-      {dropdownOpen && (
-        <div className="dropdown-menu">
-          {projects.map((project, index) => (
-            <div 
-              key={index} 
-              className="dropdown-item" 
-              onClick={() => {
-                setSelectedProject(project);
-                setDropdownOpen(false);
-                setSelectedDate(new Date());
-                setEvents(projectEvents[project] || {});
-                setTodoLists(projectTodos[project] || {});
-              }}
-            >
-              {project}
-            </div>
-          ))}
+              {selectedProject} ▼
+            </button>
+            {dropdownOpen && (
+              <div className="dropdown-menu">
+                {projects.map((project, index) => (
+                  <div 
+                    key={index} 
+                    className="dropdown-item" 
+                    onClick={() => {
+                      setSelectedProject(project);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    {project}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </div>
-  </div>
-  <div className="app-bar-right">
-    <FaBell className="icon" />
-    <FaCog className="icon" />
-  </div>
-</div>
+        <div className="app-bar-right">
+          <FaClock className="icon" /> {/* 시계 아이콘 */}
+          <FaUser className="icon" /> {/* 프로필 아이콘 */}
+          <FaFileAlt className="icon" onClick={openProjectModal} /> {/* 페이지 아이콘 */}
+        
+        </div>
+      </div>
+
+      {/* New Project Modal */}
+      <Modal
+        isOpen={isProjectModalOpen}
+        onRequestClose={closeProjectModal}
+        className="modal"
+        overlayClassName="overlay"
+      >
+        <div className="modal-header">
+          <button className="close-btn" onClick={closeProjectModal}> &times; </button>
+          <button className="save-btn" onClick={handleCreateProject}> ✓ </button>
+        </div>
+        <input
+          type="text"
+          placeholder="새 프로젝트 이름"
+          value={newProjectName}
+          onChange={(e) => setNewProjectName(e.target.value)}
+          className="modal-input"
+        />
+      </Modal>
 
 
       {/* Calendar */}
@@ -235,26 +265,29 @@ const handleSave = () => {
         />
       </div>
 
+
+
       {/* Events and To-do List */}
       <div className="schedule-content">
         {/* 일정 표시 */}
         <div className="schedule-section">
-          <h3>일정</h3>
+
           <div className="schedule-horizontal">
           <div className="schedule-list">
-  {(events[selectedDate.toDateString()] || []).map((event, index) => (
-    <div
-      key={index}
-      className="schedule-item"
-      onClick={() => handleEditEvent(event, index)} // ✅ 클릭 시 일정 수정 모달 열기
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "10px",
-        borderBottom: "1px solid #ddd",
-        cursor: "pointer",
-      }}
+
+        {(events[selectedDate.toDateString()] || []).map((event, index) => (
+          <div
+            key={index}
+            className="schedule-item"
+            onClick={() => handleEditEvent(event, index)} // ✅ 클릭 시 일정 수정 모달 열기
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px",
+              borderBottom: "1px solid #ddd",
+              cursor: "pointer",
+            }}
     >
       <span>{event.title}</span>
       <FaTrash
@@ -422,9 +455,6 @@ const handleSave = () => {
   </div>
 </Modal>
 
-
-
-
       {/* Delete Confirmation Modal */}
       {deleteConfirm.show && (
         <Modal
@@ -434,7 +464,7 @@ const handleSave = () => {
           overlayClassName="overlay"
         >
           <h3>일정을 삭제하시겠습니까?</h3>
-          <p>"{deleteConfirm.item.title}" 일정을 삭제하시겠습니까?</p>
+          <p>"{deleteConfirm.item.title}" 을 삭제하시겠습니까?</p>
           <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'nowrap' }}>
             <button onClick={() => handleDelete(deleteConfirm.item, deleteConfirm.isTodo)}>예</button>
             <button onClick={() => setDeleteConfirm({ show: false, item: null, isTodo: false })}>

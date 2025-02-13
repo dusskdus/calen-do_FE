@@ -1,55 +1,103 @@
 /* App Bar */
 .app-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background-color: #ffffff;
-    border-bottom: 1px solid #ddd;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+}
+
+.app-bar-left {
+  display: flex;
+  align-items: center;
+}
+
+.app-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  margin-right: 8px;
+  color: #000;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+
+/* Project Dropdown */
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-toggle {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  background: #FFE5E5;
+  border-radius: 10px;
+  padding: 5px 0;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  z-index: 10;
+}
+
+.dropdown-item {
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: #FFC1C1;
+}
   
-  .app-bar-left,
-  .app-bar-right {
-    display: flex;
-    align-items: center;
-  }
+ /* Calendar */
+.calendar-container {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.calendar-event {
+  margin-top: 2px;
+  padding: 2px 4px;
+  color: white;
+  font-size: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
   
-  .icon {
-    margin-right: 8px;
-    color: #000;
-    font-size: 20px;
-  }
-  
-  /* Calendar */
-  .calendar-container {
-    padding: 16px;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .calendar-event {
-    margin-top: 2px;
-    padding: 2px 4px;
-    color: white;
-    font-size: 10px;
-    border-radius: 4px;
-    text-align: center;
-  }
-  
-  /* Floating Action Button */
-  .fab {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: rgb(241, 128, 128);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    font-size: 24px;
-    cursor: pointer;
-  }
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgb(241, 128, 128);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
   
   /* 일정 및 To-do 리스트 */
   .list-container {
@@ -67,8 +115,7 @@
     margin-bottom: 20px;
   }
   
-  .schedule-item,
-  .todo-item {
+  .schedule-item{
     display: flex;
     align-items: center;
     padding: 10px;
@@ -77,50 +124,97 @@
     border-radius: 10px;
     position: relative;
   }
+
+  .schedule-item::before {
+    content: "•";
+    font-size: 20px;
+    color: #007aff;
+    position: absolute;
+    left: -10px;
+    top: 12px;
+}
+.schedule-time {
+  font-size: 12px;
+  color: #555;
+}
+/* To-do 리스트 스타일 */
+.todo-list {
+  background-color: #fff;
+  padding: 0px;
+  margin-top: 10px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.todo-item input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.todo-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #007aff; /* 체크박스 색상 변경 */
+  cursor: pointer;
+}
+
   
-  /* Modal */
-  .modal {
-    background: #ffe5e5;
-    padding: 20px;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 400px;
-    margin: auto;
-    position: relative;
-  }
+/* Modal */
+.modal {
+  background: #FFE5E5;
+  padding: 20px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 420px;
+  margin: auto;
+  position: relative;
+  box-sizing: border-box;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.overlay {
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
   
-  .overlay {
-    background: rgba(0, 0, 0, 0.5);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-  
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .close-btn,
-  .save-btn {
+/* 버튼 크기 조정 */
+.close-btn,
+.save-btn {
     background: none;
     border: none;
     font-size: 24px;
     cursor: pointer;
     color: #d9534f;
-  }
-  
-  .modal-input {
-    width: 100%;
+}
+
+/* 입력 필드 크기 조정 */
+.modal-input {
+    width: calc(100% - 20px);
     padding: 10px;
-    margin: 10px 10px;
+    margin: 10px 0;
     border: none;
     border-radius: 5px;
     background: white;
-  }
+    box-sizing: border-box;
+}
   
   .selection-row {
     display: flex;
@@ -152,29 +246,30 @@
     background: white;
   }
   
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .app-bar {
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .app-bar {
       flex-direction: column;
       padding: 8px;
-    }
-  
-    .icon {
+  }
+
+  .icon {
       font-size: 18px;
-    }
-  
-    .calendar-container {
+  }
+
+  .calendar-container {
       padding: 8px;
-    }
-  
-    .fab {
+  }
+
+  .fab {
       width: 48px;
       height: 48px;
       font-size: 20px;
       bottom: 16px;
       right: 16px;
-    }
-  
+  }
+
+
     .schedule-item,
     .todo-item {
       flex-direction: column;
@@ -185,7 +280,7 @@
     .modal {
       width: 95%;
       padding: 15px;
-    }
+  }
   
     .modal-header {
       flex-direction: column;
