@@ -75,78 +75,78 @@ const projectTodos = {
 
   
 
-  const handleSave = () => {
-    const dateKey = selectedDate.toDateString();
-    let updatedEvents = { ...events };
+const handleSave = () => {
+  const dateKey = selectedDate.toDateString();
 
-    const newItem = {
-      title: newTitle,
-      type: eventType,
-      color: selectedColor,
-      time: selectedTime,
-      repeat: repeatOption,
-      alert: alertOption,
-      completed: false,
-    };
+  const newItem = {
+    title: newTitle,
+    type: eventType,
+    color: selectedColor,
+    time: selectedTime,
+    repeat: repeatOption,
+    alert: alertOption,
+    completed: false,
+  };
 
-    if (editingIndex !== null) {
-      // 수정 모드: 기존 일정 수정
-      if (!updatedEvents[dateKey]) {
-        updatedEvents[dateKey] = [];
-      }
-      updatedEvents[dateKey][editingIndex] = newItem;
-      setEditingIndex(null);
-    } else {
-      // 새 일정 추가
-      if (!updatedEvents[dateKey]) {
-        updatedEvents[dateKey] = [];
-      }
-      updatedEvents[dateKey].push(newItem);
+  if (eventType === "Schedule") {
+      // ✅ 일정(Schedule) 추가 로직
+      let updatedEvents = { ...events };
 
-      // 🔹 반복 일정 추가
-      if (repeatOption === "weekly") {
-        for (let i = 1; i <= 10; i++) { // 10주 동안 반복
-          let nextDate = new Date(selectedDate);
-          nextDate.setDate(nextDate.getDate() + i * 7);
-          const nextDateKey = nextDate.toDateString();
+      if (editingIndex !== null) {
+          if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+          updatedEvents[dateKey][editingIndex] = newItem;
+          setEditingIndex(null);
+      } else {
+          if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+          updatedEvents[dateKey].push(newItem);
 
-          if (!updatedEvents[nextDateKey]) {
-            updatedEvents[nextDateKey] = [];
+          // 🔹 반복 일정 추가
+          if (repeatOption === "weekly") {
+              for (let i = 1; i <= 10; i++) {
+                  let nextDate = new Date(selectedDate);
+                  nextDate.setDate(nextDate.getDate() + i * 7);
+                  const nextDateKey = nextDate.toDateString();
+                  if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+                  updatedEvents[nextDateKey].push({ ...newItem });
+              }
           }
-          updatedEvents[nextDateKey].push({ ...newItem });
-        }
-      }
 
-      if (repeatOption === "monthly") {
-        for (let i = 1; i <= 12; i++) { // 12개월 동안 반복
-          let nextDate = new Date(selectedDate);
-          nextDate.setMonth(nextDate.getMonth() + i);
-          const nextDateKey = nextDate.toDateString();
-
-          if (!updatedEvents[nextDateKey]) {
-            updatedEvents[nextDateKey] = [];
+          if (repeatOption === "monthly") {
+              for (let i = 1; i <= 12; i++) {
+                  let nextDate = new Date(selectedDate);
+                  nextDate.setMonth(nextDate.getMonth() + i);
+                  const nextDateKey = nextDate.toDateString();
+                  if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+                  updatedEvents[nextDateKey].push({ ...newItem });
+              }
           }
-          updatedEvents[nextDateKey].push({ ...newItem });
-        }
-      }
 
-      if (repeatOption === "yearly") {
-        for (let i = 1; i <= 5; i++) { // 5년 동안 반복
-          let nextDate = new Date(selectedDate);
-          nextDate.setFullYear(selectedDate.getFullYear() + i);
-          const nextDateKey = nextDate.toDateString();
-
-          if (!updatedEvents[nextDateKey]) {
-            updatedEvents[nextDateKey] = [];
+          if (repeatOption === "yearly") {
+              for (let i = 1; i <= 5; i++) {
+                  let nextDate = new Date(selectedDate);
+                  nextDate.setFullYear(selectedDate.getFullYear() + i);
+                  const nextDateKey = nextDate.toDateString();
+                  if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+                  updatedEvents[nextDateKey].push({ ...newItem });
+              }
           }
-          updatedEvents[nextDateKey].push({ ...newItem });
-        }
       }
-    }
 
-    setEvents(updatedEvents);
-    closeModal(); // 💡 수정: 여기에서 `return` 문을 넣지 않도록 변경
+      setEvents(updatedEvents);
+
+  } else if (eventType === "To-do") {
+      // ✅ To-do List 추가 로직
+      let updatedTodos = { ...todoLists };
+
+      if (!updatedTodos[dateKey]) updatedTodos[dateKey] = [];
+      updatedTodos[dateKey].push(newItem);
+
+      setTodoLists(updatedTodos);
+  }
+
+  closeModal();
 };
+
 
 
 
