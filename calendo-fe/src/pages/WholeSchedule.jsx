@@ -8,7 +8,6 @@ import "../styles/WholeSchedule.css";
 Modal.setAppElement("#root");
 
 const WholeSchedule = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState({});
   const [todoLists, setTodoLists] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,18 +20,42 @@ const WholeSchedule = () => {
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, item: null, isTodo: false });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [projects, setProjects] = useState(["내 일정"]);
   const [selectedProject, setSelectedProject] = useState("내 일정");
+  
   // 프로젝트별 데이터 저장
   const [projectData, setProjectData] = useState({
     "내 일정": { events: {}, todoLists: {} }
   });
+
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
 
+  const [projectMembers, setProjectMembers] = useState({
+    "내 일정": ["나", "수현"], // 기본 프로젝트의 팀원
+  });
+  const [isMemberDropdownOpen, setIsMemberDropdownOpen] = useState(false);
+
+  const toggleMemberDropdown = () => {
+    setIsMemberDropdownOpen(!isMemberDropdownOpen);
+  };
+  
   // 현재 선택된 프로젝트의 데이터를 불러옴
   const currentEvents = projectData[selectedProject]?.events || {};
   const currentTodoLists = projectData[selectedProject]?.todoLists || {};
+
+  const handleAddMember = () => {
+    const newMember = prompt("추가할 팀원 이름을 입력하세요:");
+    if (newMember && newMember.trim() !== "") {
+      setProjectMembers((prev) => ({
+        ...prev,
+        [selectedProject]: [...(prev[selectedProject] || []), newMember],
+      }));
+    }
+  };
+  
 
   const handleDayClick = (date) => {
     setSelectedDate(date);
@@ -77,16 +100,34 @@ const closeProjectModal = () => {
   setNewProjectName("");
 };
 
-const handleCreateProject = () => {
-  if (newProjectName.trim() !== "") {
-    setProjects((prevProjects) =>
-      prevProjects.includes("내 일정")
-        ? [...prevProjects, newProjectName]
-        : ["내 일정", newProjectName]
-    );
+// const handleCreateProject = () => {
+//   if (newProjectName.trim() !== "") {
+//     setProjects((prevProjects) =>
+//       prevProjects.includes("내 일정")
+//         ? [...prevProjects, newProjectName]
+//         : ["내 일정", newProjectName]
+//     );
+//     setSelectedProject(newProjectName);
+//     closeProjectModal();
+//   }
+// };
+
+ // 새 프로젝트 추가
+ const handleCreateProject = () => {
+  if (newProjectName.trim() !== "" && !projects.includes(newProjectName)) {
+    setProjects([...projects, newProjectName]);
+    setProjectData({
+      ...projectData,
+      [newProjectName]: { events: {}, todoLists: {} }
+    });
     setSelectedProject(newProjectName);
     closeProjectModal();
   }
+};
+
+// 프로젝트 변경
+const handleProjectChange = (project) => {
+  setSelectedProject(project);
 };
 
 
@@ -195,8 +236,19 @@ const handleSave = () => {
     <div className="schedule-container">
       {/* App Bar */}
       <div className="app-bar">
-        <div className="app-bar-left">
-        <FaUser className="icon" />
+        <div className="app-bar-left" >
+        <FaUser className="icon" onClick={toggleMemberDropdown} />
+        {/* 팀원 목록 드롭다운 */}
+  {isMemberDropdownOpen && (
+    <div className="member-dropdown">
+      {(projectMembers[selectedProject] || []).map((member, index) => (
+        <div key={index} className="member-item">{member}</div>
+      ))}
+      <div className="member-item invite" onClick={handleAddMember}>
+        팀원 초대 <FaUser />
+      </div>
+    </div>
+  )}
     <div className="dropdown-container">
       <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
               {selectedProject} ▼

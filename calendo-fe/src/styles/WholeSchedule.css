@@ -26,6 +26,36 @@
   cursor: pointer;
 }
 
+/* 팀원 목록 스타일 */
+.member-dropdown {
+  position: absolute;
+  top: 50px;
+  left: 10px;
+  background: #ffedd5;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.member-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #ffd6a5;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.member-item.invite {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: bold;
+  color: #ff5722;
+}
+
 
 /* Project Dropdown */
 .dropdown-container {
