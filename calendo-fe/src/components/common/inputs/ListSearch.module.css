@@ -1,0 +1,52 @@
+.list-search-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 10px;
+    border-radius: 7px;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px;
+    background-color: #fff;
+    box-shadow: 0 4px 14px rgba(229, 229, 229, 100);
+}
+
+.list-search-img-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; 
+    height: 34px;
+}
+
+/* 돋보기 이미지 스타일 */
+.list-search-img-container img {
+    width: 28px;
+    height: 28px;
+}
+
+.list-search-input-container {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    padding: 10px 15px;
+    font-size: 20px;
+    background-color: transparent;
+}
+
+.list-search-button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.list-search-button-container button {
+    background-color: #FFE3E3;
+    border: none;
+    padding: 18px 30px;
+    border-radius: 4px;
+    font-size: 18px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
