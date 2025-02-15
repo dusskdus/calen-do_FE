@@ -52,8 +52,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: bold;
-  color: #ff5722;
+}
+.spaced-icon {
+  margin-left: 8px; /* 텍스트와 아이콘 사이 간격 조정 */
 }
 
 
@@ -95,6 +96,19 @@
 
 .dropdown-item:hover {
   background: #FFC1C1;
+}
+
+
+/* Dropdown이 열린 후 보이는 옵션 리스트 */
+.dropdown option {
+  background: #EA6B6B; /* 🔴 옵션 배경색 */
+  color: white;
+  padding: 10px;
+}
+
+/* Hover 시 스타일 */
+.dropdown option:hover {
+  background: #ff8787; /* 🔴 밝은 빨간색 */
 }
   
  /* Calendar */
@@ -225,6 +239,53 @@
   margin-bottom: 10px;
 }
   
+.delete-modal {
+  width: 80%;
+  max-width: 320px;
+  background: white;
+  border-radius: 12px;
+  padding: 30px 20px; /* 🔺 기존 20px에서 30px로 증가 */
+  min-height: 150px; /* 🔺 세로 길이 조정 */
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* 🔺 버튼과 텍스트 사이 간격 유지 */
+}
+
+.delete-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 20px;
+}
+
+.delete-buttons {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 10px; /* 🔺 버튼과 텍스트 사이 간격 추가 */
+  padding-top : 20px;
+}
+
+.delete-btn, .cancel-btn {
+  width: 90px;
+  height: 30px;
+  border-radius: 20px;
+  border: 1px solid #EEEEEE;
+  background: #EEEEEE;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.delete-btn:hover, .cancel-btn:hover {
+  background: #f0f0f0;
+}
+
 /* 버튼 크기 조정 */
 .close-btn,
 .save-btn {

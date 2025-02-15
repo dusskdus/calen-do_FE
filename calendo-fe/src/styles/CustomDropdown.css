@@ -1,0 +1,55 @@
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 120px;
+  }
+  .dropdown-label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+  }
+  .dropdown-btn {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background: #ff6b6b; /* 🔴 버튼 배경 */
+    color: white;
+    cursor: pointer;
+    text-align: center;
+    font-size: 14px;
+    position: relative;
+    height: 40px; /* ✅ 버튼 높이 고정 */
+    line-height: 40px; /* ✅ 줄 높이를 버튼 높이와 맞춤 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    width: 100%;
+    background: #ff6b6b; /* 🔴 배경 동일 */
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 5px 0;
+    list-style: none;
+    margin: 0;
+    z-index: 10;
+  }
+  
+  .dropdown-menu li {
+    padding: 8px;
+    cursor: pointer;
+    text-align: center;
+    height: 40px; /* ✅ 옵션 높이도 고정 */
+    line-height: 40px; /* ✅ 버튼과 동일한 줄 높이 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .dropdown-menu li:hover {
+    background: #ff8787; /* 🔴 더 밝은 빨간색 */
+  }

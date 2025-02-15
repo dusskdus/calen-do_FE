@@ -4,6 +4,17 @@ import "react-calendar/dist/Calendar.css";
 import Modal from "react-modal";
 import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle, FaTimes, FaClock, FaFileAlt } from "react-icons/fa"; 
 import "../styles/WholeSchedule.css";
+import trashIcon from "../assets/images/trash.svg";
+import addMemberIcon from "../assets/images/addmember.svg";
+import addProjectIcon from "../assets/images/addproject.svg";
+import alertIcon from "../assets/images/alert.svg";
+import timeIcon from "../assets/images/time.svg";
+import profileIcon from "../assets/images/profile.svg";
+import checkIcon from "../assets/images/check.svg";
+import googleIcon from "../assets/images/google.svg";
+import teammemberIcon from "../assets/images/teammember.svg";
+import exitIcon from "../assets/images/x.svg";
+
 
 Modal.setAppElement("#root");
 
@@ -13,7 +24,7 @@ const WholeSchedule = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [eventType, setEventType] = useState("Schedule");
-  const [selectedColor, setSelectedColor] = useState("#FFCDD2");
+ 
   const [selectedTime, setSelectedTime] = useState("");
   const [repeatOption, setRepeatOption] = useState("none");
   const [alertOption, setAlertOption] = useState("이벤트 당일(오전 9시)");
@@ -21,9 +32,16 @@ const WholeSchedule = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
 
+
+  const [selectedColor, setSelectedColor] = useState("#FFCDD2"); // 기본 색상 설정
+  const [selectedType, setSelectedType] = useState("일정"); // 기본 일정 유형 설정
+  const [selectedRepeat, setSelectedRepeat] = useState("반복 없음"); // 기본 반복 옵션 설정
+
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [projects, setProjects] = useState(["내 일정"]);
   const [selectedProject, setSelectedProject] = useState("내 일정");
+  
   
   // 프로젝트별 데이터 저장
   const [projectData, setProjectData] = useState({
@@ -55,6 +73,7 @@ const WholeSchedule = () => {
       }));
     }
   };
+
   
 
   const handleDayClick = (date) => {
@@ -143,8 +162,7 @@ const handleSave = () => {
     alert: alertOption,
     completed: false,
   };
-
-  if (eventType === "Schedule") {
+    if (eventType === "Schedule") {
       // ✅ 일정(Schedule) 추가 로직
       let updatedEvents = { ...events };
 
@@ -237,7 +255,7 @@ const handleSave = () => {
       {/* App Bar */}
       <div className="app-bar">
         <div className="app-bar-left" >
-        <FaUser className="icon" onClick={toggleMemberDropdown} />
+          <img src={teammemberIcon} className="icon"  onClick={toggleMemberDropdown} />
         {/* 팀원 목록 드롭다운 */}
   {isMemberDropdownOpen && (
     <div className="member-dropdown">
@@ -245,7 +263,7 @@ const handleSave = () => {
         <div key={index} className="member-item">{member}</div>
       ))}
       <div className="member-item invite" onClick={handleAddMember}>
-        팀원 초대 <FaUser />
+        팀원 초대  <img src={addMemberIcon}  className="spaced-icon" />
       </div>
     </div>
   )}
@@ -272,9 +290,10 @@ const handleSave = () => {
           </div>
         </div>
         <div className="app-bar-right">
-          <FaClock className="icon" /> {/* 시계 아이콘 */}
-          <FaUser className="icon" /> {/* 프로필 아이콘 */}
-          <FaFileAlt className="icon" onClick={openProjectModal} /> {/* 페이지 아이콘 */}
+          <img src={alertIcon} className="icon" />
+          <img src={addProjectIcon} className="icon" onClick={openProjectModal} />
+          <img src={timeIcon} className="icon" />
+          <img src={profileIcon} className="icon" />
         
         </div>
       </div>
@@ -287,8 +306,10 @@ const handleSave = () => {
         overlayClassName="overlay"
       >
         <div className="modal-header">
-          <button className="close-btn" onClick={closeProjectModal}> &times; </button>
-          <button className="save-btn" onClick={handleCreateProject}> ✓ </button>
+        <button className="close-btn" onClick={closeProjectModal}> &times; </button>
+
+
+<button className="save-btn" onClick={handleCreateProject}> ✓ </button>
         </div>
         <input
           type="text"
@@ -342,7 +363,8 @@ const handleSave = () => {
             }}
     >
       <span>{event.title}</span>
-      <FaTrash
+
+      <img src={trashIcon}
         className="delete-icon"
         onClick={(e) => {
           e.stopPropagation(); // 삭제 버튼 클릭 시 모달 안 뜨도록 이벤트 버블링 방지
@@ -356,7 +378,7 @@ const handleSave = () => {
           </div>
         </div>
 
-        <hr />
+      
 
         {/* To-do List 표시 */}
         <div className="schedule-section">
@@ -371,10 +393,7 @@ const handleSave = () => {
                 />
                 <span className={todo.completed ? "completed" : "todo-text"}>{todo.title}</span>
                 <div className="delete-container">
-                  <FaTrash
-                    className="delete-icon"
-                    onClick={() => setDeleteConfirm({ show: true, item: todo, isTodo: true })}
-                  />
+                <img src={trashIcon} alt="삭제 아이콘" className="delete-icon" onClick={() => setDeleteConfirm({ show: true, item: todo, isTodo: true })}/>
                 </div>
               </div>
             ))}
@@ -510,20 +529,24 @@ const handleSave = () => {
       {/* Delete Confirmation Modal */}
       {deleteConfirm.show && (
         <Modal
-          isOpen={deleteConfirm.show}
-          onRequestClose={() => setDeleteConfirm({ show: false, item: null, isTodo: false })}
-          className="modal"
-          overlayClassName="overlay"
-        >
-          <h3>일정을 삭제하시겠습니까?</h3>
-          <p>"{deleteConfirm.item.title}" 을 삭제하시겠습니까?</p>
-          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'nowrap' }}>
-            <button onClick={() => handleDelete(deleteConfirm.item, deleteConfirm.isTodo)}>예</button>
-            <button onClick={() => setDeleteConfirm({ show: false, item: null, isTodo: false })}>
+        isOpen={deleteConfirm.show}
+        onRequestClose={() => setDeleteConfirm({ show: false, item: null, isTodo: false })}
+        className="delete-modal"
+        overlayClassName="overlay"
+      >
+        <div className="delete-modal-content">
+          <p className="delete-text">
+            <strong>‘{deleteConfirm.item.title}’ 일정을</strong> <br />
+            삭제하시겠습니까?
+          </p>
+          <div className="delete-buttons">
+            <button className="delete-btn" onClick={() => handleDelete(deleteConfirm.item, deleteConfirm.isTodo)}>예</button>
+            <button className="cancel-btn" onClick={() => setDeleteConfirm({ show: false, item: null, isTodo: false })}>
               아니요
             </button>
           </div>
-        </Modal>
+        </div>
+      </Modal>
       )}
     </div>
   );
