@@ -354,7 +354,6 @@ const handleSave = () => {
         </h2>
       </div> */}
 
-
       {/* 캘린더 */}
       <div className="calendar-container">
         <Calendar
@@ -367,7 +366,7 @@ const handleSave = () => {
           }}
           formatDay={(locale, date) => date.getDate()} // '일' 제거하고 숫자만 표시
           formatShortWeekday={(locale, date) =>
-            date.toLocaleDateString("en-US", { weekday: "short" }).substring(0, 3)
+            date.toLocaleDateString("en-US", { weekday: "short" }) // ✅ Mon, Tue, Wed 형태로 변경
           }
           tileContent={({ date }) => (
             <div className="calendar-event-container">
@@ -381,48 +380,35 @@ const handleSave = () => {
         />
       </div>
     </div>
-      
-    
-     
+          
 
-      {/* Events and To-do List */}
-      <div className="schedule-content">
-        {/* 일정 표시 */}
-        <div className="schedule-section">
-
-          <div className="schedule-horizontal">
-          <div className="schedule-list">
-
+  {/* Events and To-do List */}
+<div className="schedule-content">
+  {/* 일정 표시 */}
+  <div className="schedule-section">
+    <div className="schedule-horizontal">
+      <div className="schedule-list">
         {(events[selectedDate.toDateString()] || []).map((event, index) => (
-          <div
-            key={index}
-            className="schedule-item"
-            onClick={() => handleEditEvent(event, index)} // ✅ 클릭 시 일정 수정 모달 열기
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "10px",
-              borderBottom: "1px solid #ddd",
-              cursor: "pointer",
-            }}
-    >
-      <span>{event.title}</span>
+          <div key={index} className="schedule-item"
+          onClick={() => handleEditEvent(event, index)} // ✅ 클릭 시 일정 수정 모달 열기
+          >
+            {/* 시간 + 파란 점 */}
+            <div className="schedule-time">
+              <span className="event-dot">●</span>
+              <span className="event-time">{event.time}</span>
+            </div>
 
-      <img src={trashIcon}
-        className="delete-icon"
-        onClick={(e) => {
-          e.stopPropagation(); // 삭제 버튼 클릭 시 모달 안 뜨도록 이벤트 버블링 방지
-          setDeleteConfirm({ show: true, item: event, isTodo: false });
-        }}
-        style={{ cursor: "pointer", color: "red" }}
-      />
-    </div>
-  ))}
-</div>
+            {/* 일정 제목 */}
+            <div className="event-box">
+              <div className="event-bar"></div>
+              <div className="event-title">{event.title}</div>
+            </div>
+
           </div>
-        </div>
-
+        ))}
+      </div>
+    </div>
+  </div>
       
 
         {/* To-do List 표시 */}
