@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle, FaTimes, FaClock, FaFileAlt } from "react-icons/fa"; 
 import "../styles/WholeSchedule.css";
@@ -20,6 +21,7 @@ import downarrowIcon from "../assets/images/downarrow.svg"
 Modal.setAppElement("#root");
 
 const WholeSchedule = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState({});
   const [todoLists, setTodoLists] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -312,7 +314,7 @@ const handleSave = () => {
           <img src={alertIcon} className="icon" />
           <img src={addProjectIcon} className="icon" onClick={openProjectModal} />
           <img src={timeIcon} className="icon" />
-          <img src={profileIcon} className="icon" />
+          <img src={profileIcon} className="icon" onClick={() => navigate("/mypage")} />
         
         </div>
       </div>

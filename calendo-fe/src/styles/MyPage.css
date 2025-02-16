@@ -1,0 +1,72 @@
+/* 전체 페이지 컨테이너 */
+.mypage-container {
+    width: 100%;
+    height: 100vh;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* 상단 네비게이션 바 */
+.mypage-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 0;
+}
+
+/* 뒤로 가기 아이콘 */
+.back-icon {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* 프로필 섹션 */
+.profile-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* 프로필 컨테이너 */
+.profile-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 유저 정보 섹션 */
+.user-info {
+    width: 80%;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* ✅ 모든 항목 간 간격을 동일하게 조정 */
+}
+
+/* 정보 줄 */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+}
+
+/* 정보 라벨 */
+.info-label {
+    font-weight: bold;
+}
+
+/* 1:1 문의 */
+.inquiry-section {
+    width: 80%;
+    margin-top: 40px; /* ✅ 유저 정보와 동일한 간격으로 조정 */
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
