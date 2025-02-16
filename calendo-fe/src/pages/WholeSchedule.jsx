@@ -14,6 +14,7 @@ import checkIcon from "../assets/images/check.svg";
 import googleIcon from "../assets/images/google.svg";
 import teammemberIcon from "../assets/images/teammember.svg";
 import exitIcon from "../assets/images/x.svg";
+import downarrowIcon from "../assets/images/downarrow.svg"
 
 
 Modal.setAppElement("#root");
@@ -117,6 +118,24 @@ const openProjectModal = () => {
 const closeProjectModal = () => {
   setIsProjectModalOpen(false);
   setNewProjectName("");
+};
+
+// 이전 달로 이동
+const handlePrevMonth = () => {
+  setSelectedDate((prevDate) => {
+    const prevMonth = new Date(prevDate);
+    prevMonth.setMonth(prevMonth.getMonth() - 1);
+    return prevMonth;
+  });
+};
+
+// 다음 달로 이동
+const handleNextMonth = () => {
+  setSelectedDate((prevDate) => {
+    const nextMonth = new Date(prevDate);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    return nextMonth;
+  });
 };
 
 // const handleCreateProject = () => {
@@ -320,25 +339,32 @@ const handleSave = () => {
         />
       </Modal>
 
+
       <div className="schedule-container">
-      {/* 상단 날짜 표시 */}
-      <div className="calendar-header">
+      {/* 상단 날짜 표시 + 네비게이션 역할 */}
+      {/* <div className="calendar-header">
         <h2>
+        <button className="nav-button" onClick={handlePrevMonth}>◁</button>
           {selectedDate.toLocaleString("en-US", {
             month: "long",
             day: "numeric",
             year: "numeric",
           })}
+          <button className="nav-button" onClick={handleNextMonth}>▷</button>
         </h2>
-      </div>
-      
-    
+      </div> */}
+
+
       {/* 캘린더 */}
       <div className="calendar-container">
         <Calendar
-          onChange={handleDayClick}
+          onChange={setSelectedDate}
           value={selectedDate}
-          showNavigation = {false}
+          formatMonthYear={(locale, date) => {
+            return `${date.toLocaleString("en-US", {
+              month: "long",
+            })} ${selectedDate.getDate()} ${date.getFullYear()}`; // ✅ "March 21 2025" 형식
+          }}
           formatDay={(locale, date) => date.getDate()} // '일' 제거하고 숫자만 표시
           formatShortWeekday={(locale, date) =>
             date.toLocaleDateString("en-US", { weekday: "short" }).substring(0, 3)
@@ -355,6 +381,9 @@ const handleSave = () => {
         />
       </div>
     </div>
+      
+    
+     
 
       {/* Events and To-do List */}
       <div className="schedule-content">
