@@ -14,6 +14,7 @@ import checkIcon from "../assets/images/check.svg";
 import googleIcon from "../assets/images/google.svg";
 import teammemberIcon from "../assets/images/teammember.svg";
 import exitIcon from "../assets/images/x.svg";
+import downarrowIcon from "../assets/images/downarrow.svg"
 
 
 Modal.setAppElement("#root");
@@ -117,6 +118,24 @@ const openProjectModal = () => {
 const closeProjectModal = () => {
   setIsProjectModalOpen(false);
   setNewProjectName("");
+};
+
+// 이전 달로 이동
+const handlePrevMonth = () => {
+  setSelectedDate((prevDate) => {
+    const prevMonth = new Date(prevDate);
+    prevMonth.setMonth(prevMonth.getMonth() - 1);
+    return prevMonth;
+  });
+};
+
+// 다음 달로 이동
+const handleNextMonth = () => {
+  setSelectedDate((prevDate) => {
+    const nextMonth = new Date(prevDate);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    return nextMonth;
+  });
 };
 
 // const handleCreateProject = () => {
@@ -321,63 +340,75 @@ const handleSave = () => {
       </Modal>
 
 
-      {/* Calendar */}
+      <div className="schedule-container">
+      {/* 상단 날짜 표시 + 네비게이션 역할 */}
+      {/* <div className="calendar-header">
+        <h2>
+        <button className="nav-button" onClick={handlePrevMonth}>◁</button>
+          {selectedDate.toLocaleString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+          <button className="nav-button" onClick={handleNextMonth}>▷</button>
+        </h2>
+      </div> */}
+
+      {/* 캘린더 */}
       <div className="calendar-container">
         <Calendar
-          onChange={handleDayClick}
+          onChange={setSelectedDate}
           value={selectedDate}
-          tileContent={({ date }) =>
-            (events[date.toDateString()] || []).map((event, idx) => (
-              <div
-                key={idx}
-                className="calendar-event"
-                style={{ backgroundColor: event.color }}
-              />
-            ))
+          formatMonthYear={(locale, date) => {
+            return `${date.toLocaleString("en-US", {
+              month: "long",
+            })} ${selectedDate.getDate()} ${date.getFullYear()}`; // ✅ "March 21 2025" 형식
+          }}
+          formatDay={(locale, date) => date.getDate()} // '일' 제거하고 숫자만 표시
+          formatShortWeekday={(locale, date) =>
+            date.toLocaleDateString("en-US", { weekday: "short" }) // ✅ Mon, Tue, Wed 형태로 변경
           }
+          tileContent={({ date }) => (
+            <div className="calendar-event-container">
+              {(events[date.toDateString()] || []).slice(0, 2).map((event, idx) => (
+                <div key={idx} className="calendar-event" style={{backgroundColor: event.color}}>
+                  {event.title}
+                </div>
+              ))}
+            </div>
+          )}
         />
       </div>
-
-
-
-      {/* Events and To-do List */}
-      <div className="schedule-content">
-        {/* 일정 표시 */}
-        <div className="schedule-section">
-
-          <div className="schedule-horizontal">
-          <div className="schedule-list">
-
-        {(events[selectedDate.toDateString()] || []).map((event, index) => (
-          <div
-            key={index}
-            className="schedule-item"
-            onClick={() => handleEditEvent(event, index)} // ✅ 클릭 시 일정 수정 모달 열기
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "10px",
-              borderBottom: "1px solid #ddd",
-              cursor: "pointer",
-            }}
-    >
-      <span>{event.title}</span>
-
-      <img src={trashIcon}
-        className="delete-icon"
-        onClick={(e) => {
-          e.stopPropagation(); // 삭제 버튼 클릭 시 모달 안 뜨도록 이벤트 버블링 방지
-          setDeleteConfirm({ show: true, item: event, isTodo: false });
-        }}
-        style={{ cursor: "pointer", color: "red" }}
-      />
     </div>
-  ))}
-</div>
-          </div>
-        </div>
+          
 
+  {/* Events and To-do List */}
+<div className="schedule-content">
+  {/* 일정 표시 */}
+  <div className="schedule-section">
+    <div className="schedule-horizontal">
+      <div className="schedule-list">
+        {(events[selectedDate.toDateString()] || []).map((event, index) => (
+          <div key={index} className="schedule-item"
+          onClick={() => handleEditEvent(event, index)} // ✅ 클릭 시 일정 수정 모달 열기
+          >
+            {/* 시간 + 파란 점 */}
+            <div className="schedule-time">
+              <span className="event-dot">●</span>
+              <span className="event-time">{event.time}</span>
+            </div>
+
+            {/* 일정 제목 */}
+            <div className="event-box">
+              <div className="event-bar"></div>
+              <div className="event-title">{event.title}</div>
+            </div>
+
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
       
 
         {/* To-do List 표시 */}
