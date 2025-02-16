@@ -320,25 +320,41 @@ const handleSave = () => {
         />
       </Modal>
 
-
-      {/* Calendar */}
+      <div className="schedule-container">
+      {/* 상단 날짜 표시 */}
+      <div className="calendar-header">
+        <h2>
+          {selectedDate.toLocaleString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </h2>
+      </div>
+      
+    
+      {/* 캘린더 */}
       <div className="calendar-container">
         <Calendar
           onChange={handleDayClick}
           value={selectedDate}
-          tileContent={({ date }) =>
-            (events[date.toDateString()] || []).map((event, idx) => (
-              <div
-                key={idx}
-                className="calendar-event"
-                style={{ backgroundColor: event.color }}
-              />
-            ))
+          showNavigation = {false}
+          formatDay={(locale, date) => date.getDate()} // '일' 제거하고 숫자만 표시
+          formatShortWeekday={(locale, date) =>
+            date.toLocaleDateString("en-US", { weekday: "short" }).substring(0, 3)
           }
+          tileContent={({ date }) => (
+            <div className="calendar-event-container">
+              {(events[date.toDateString()] || []).slice(0, 2).map((event, idx) => (
+                <div key={idx} className="calendar-event" style={{backgroundColor: event.color}}>
+                  {event.title}
+                </div>
+              ))}
+            </div>
+          )}
         />
       </div>
-
-
+    </div>
 
       {/* Events and To-do List */}
       <div className="schedule-content">
