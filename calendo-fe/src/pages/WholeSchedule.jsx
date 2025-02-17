@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
@@ -44,6 +44,13 @@ const WholeSchedule = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [projects, setProjects] = useState(["내 일정"]);
   const [selectedProject, setSelectedProject] = useState("내 일정");
+  const [nickname, setNickname] = useState("내 일정");
+
+  useEffect(() => {
+    // ✅ `localStorage`에서 닉네임 가져오기
+    const storedNickname = localStorage.getItem("nickname") || "내 일정";
+    setNickname(`${storedNickname}의 일정`);
+  }, []);
   
   
   // 프로젝트별 데이터 저장

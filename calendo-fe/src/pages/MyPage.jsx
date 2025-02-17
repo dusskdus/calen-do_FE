@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect }  from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/MyPage.css";
 import bigprofileIcon from "../assets/images/bigprofile.svg"; // 기본 프로필 아이콘
@@ -7,6 +7,15 @@ import backIcon from "../assets/images/backicon.svg";
 
 const MyPage = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState({ email: "", nickname: "" });
+
+  useEffect(() => {
+    // ✅ `localStorage`에서 사용자 정보 가져오기
+    const email = localStorage.getItem("email") || "unknown@gmail.com";
+    const nickname = localStorage.getItem("nickname") || "unknown";
+
+    setUser({ email, nickname });
+  }, []);
 
   return (
     <div className="mypage-container">
@@ -22,22 +31,19 @@ const MyPage = () => {
         </div>
       </div>
 
-      {/* 유저 정보 */}
-      <div className="user-info">
-        <div className="info-row">
-          <span className="info-label">닉네임 정보</span>
-          <span className="info-value">suhyeon</span>
-        </div>
-        
-        <div className="info-row">
-          <span className="info-label">이메일</span>
-          <span className="info-value">suhyeon@gmail.com</span>
-        </div>
-      </div>
+   {/* 유저 정보 */}
+   <div className="user-info">
+        <h3 className="section-title">내 정보</h3>
 
-      {/* 1:1 문의 */}
-      <div className="inquiry-section">
-        <span className="inquiry-label">1:1 문의</span>
+        <div className="info-box">
+          <label className="info-label">닉네임 :</label>
+          <input type="text" value={user.nickname} readOnly className="info-input" />
+        </div>
+
+        <div className="info-box">
+          <label className="info-label">이메일 :</label>
+          <input type="text" value={user.email} readOnly className="info-input" />
+        </div>
       </div>
     </div>
   );

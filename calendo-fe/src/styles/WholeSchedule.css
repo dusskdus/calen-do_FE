@@ -211,6 +211,8 @@
   width: 100%;
   font-size: 16px;
   color: black;
+  height:100%;
+  min-height: 43px;
   padding: 10px;
   flex-grow: 1;
   background-color: #bbdefb; /* ✅ 연한 파란색 적용 */
