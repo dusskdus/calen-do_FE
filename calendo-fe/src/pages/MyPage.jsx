@@ -8,14 +8,23 @@ import backIcon from "../assets/images/backicon.svg";
 const MyPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({ email: "", nickname: "" });
+  const userId = localStorage.getItem("userId"); // ✅ 저장된 사용자 ID 가져오기
 
   useEffect(() => {
-    // ✅ `localStorage`에서 사용자 정보 가져오기
-    const email = localStorage.getItem("email") || "unknown@gmail.com";
-    const nickname = localStorage.getItem("nickname") || "unknown";
+    if (!userId) return;
 
-    setUser({ email, nickname });
-  }, []);
+    // ✅ 사용자 정보 조회 (POST)
+    fetch(`/api/users/${userId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then(response => response.json())
+      .then(data => setUser(data))
+      .catch(error => console.error("사용자 정보를 불러오지 못했습니다.", error));
+  }, [userId]);
+
+  // ✅ 이메일에서 닉네임 추출 (@ 앞부분)
+  const nickname = user?.email?.split("@")[0] || "unknown";
 
   return (
     <div className="mypage-container">

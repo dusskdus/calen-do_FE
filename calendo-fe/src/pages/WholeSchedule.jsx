@@ -42,13 +42,76 @@ const WholeSchedule = () => {
 
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [projects, setProjects] = useState(["내 일정"]);
-  const [selectedProject, setSelectedProject] = useState("내 일정");
-  const [nickname, setNickname] = useState("내 일정");
+  const [projects, setProjects] = useState(["나의 일정"]);
+  const [selectedProject, setSelectedProject] = useState("");
+  const [nickname, setNickname] = useState("");
+
+  const userId = localStorage.getItem("userId"); // ✅ 사용자 ID 가져오기
+  // ✅ 초기 색상 불러오기 (GET 요청)
+  useEffect(() => {
+    if (!userId) return;
+
+    fetch(`/api/users/${userId}/color`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.color) {
+          setSelectedColor(data.color); // 서버에서 저장된 색상 적용
+        }
+      })
+      .catch(error => console.error("메인 테마 색상 불러오기 실패:", error));
+  }, [userId]);
+
+  // ✅ 색상 선택 이벤트
+const handleColorChange = async (e) => {
+  const newColor = e.target.value;
+  setSelectedColor(newColor);
+
+  if (!userId) return;
+
+  try {
+    // 색상이 처음 선택된 경우 (POST 요청)
+    const response = await fetch(`/api/users/${userId}/color`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ color: newColor }),
+    });
+
+    if (!response.ok) {
+      throw new Error("색상 저장 실패");
+    }
+  } catch (error) {
+    console.error("메인 테마 색상 저장 오류:", error);
+  }
+};
+
+// ✅ 색상 변경 이벤트 (PUT 요청)
+const updateColor = async (newColor) => {
+  setSelectedColor(newColor);
+
+  if (!userId) return;
+
+  try {
+    const response = await fetch(`/api/users/${userId}/color`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ color: newColor }),
+    });
+
+    if (!response.ok) {
+      throw new Error("색상 변경 실패");
+    }
+  } catch (error) {
+    console.error("메인 테마 색상 변경 오류:", error);
+  }
+};
+
+
+
+
 
   useEffect(() => {
     // ✅ `localStorage`에서 닉네임 가져오기
-    const storedNickname = localStorage.getItem("nickname") || "내 일정";
+    const storedNickname = localStorage.getItem("nickname") || "unknown";
     setNickname(`${storedNickname}의 일정`);
   }, []);
   
@@ -84,8 +147,6 @@ const WholeSchedule = () => {
     }
   };
 
-  
-
   const handleDayClick = (date) => {
     setSelectedDate(date);
   };
@@ -102,7 +163,6 @@ const WholeSchedule = () => {
   const resetModalFields = () => {
     setNewTitle("");
     setEventType("Schedule");
-    setSelectedColor("#FFCDD2");
     setSelectedTime("");
     setRepeatOption("none");
     setAlertOption("이벤트 당일(오전 9시)");
@@ -297,7 +357,7 @@ const handleSave = () => {
   )}
     <div className="dropdown-container">
       <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
-              {selectedProject} ▼
+              {selectedProject} {nickname}▼
             </button>
             {dropdownOpen && (
               <div className="dropdown-menu">
@@ -316,7 +376,18 @@ const handleSave = () => {
               </div>
             )}
           </div>
+
+          
+        {/* ✅ 캘린더 색상 선택 버튼 추가 */}
+        <input
+            type="color"
+            value={selectedColor}
+            onChange={handleColorChange}
+            onBlur={(e) => updateColor(e.target.value)}
+            className="color-picker"
+          />
         </div>
+        
         <div className="app-bar-right">
           <img src={alertIcon} className="icon" />
           <img src={addProjectIcon} className="icon" onClick={openProjectModal} />
@@ -380,7 +451,7 @@ const handleSave = () => {
           tileContent={({ date }) => (
             <div className="calendar-event-container">
               {(events[date.toDateString()] || []).slice(0, 2).map((event, idx) => (
-                <div key={idx} className="calendar-event" style={{backgroundColor: event.color}}>
+                <div key={idx} className="calendar-event" style={{backgroundColor: selectedColor}}>
                   {event.title}
                 </div>
               ))}
@@ -495,16 +566,6 @@ const handleSave = () => {
   />
 
 <div className="selection-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '5px', borderBottom: '2px solid white', paddingBottom: '10px' }}>
-    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-      색상:
-      <input
-        type="color"
-        value={selectedColor}
-        onChange={(e) => setSelectedColor(e.target.value)}
-        style={{ width: '20%' }}
-      />
-    </label>
-
     <select
       className="dropdown"
       value={eventType}
