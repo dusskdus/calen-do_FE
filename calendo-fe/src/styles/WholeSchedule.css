@@ -110,6 +110,21 @@
 .dropdown option:hover {
   background: #ff8787; /* 🔴 밝은 빨간색 */
 }
+
+/* ✅ 캘린더 색상 선택 버튼 */
+.color-picker {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 4px;
+  outline: none;
+  appearance: none;
+  background: none;
+  padding: 0;
+
+}
   
 
   
@@ -202,7 +217,7 @@
 .event-bar {
   width: 8px;
   height: 100%; /* ✅ 높이 문제 해결 */
-  min-height: 43px; /* ✅ 일정이 짧을 경우에도 색상 표시 */
+  min-height: 40px; /* ✅ 일정이 짧을 경우에도 색상 표시 */
   background-color: #18A0FB; /* ✅ 진한 파란색 적용 */
 }
 
@@ -483,14 +498,25 @@
 
 /* 현재 선택된 날짜 스타일 */
 .react-calendar__tile--active {
-  background: #006edc;
+  background: #bbbbbb !important;
   
 }
 
-/* 오늘 날짜 강조 */
+/* 오늘 날짜 스타일 (검정색 원 추가) */
 .react-calendar__tile--now {
-  background: #ffff76;
-  
+  background: none; /* 기존 배경 제거 */
+  position: relative;
+}
+
+.react-calendar__tile--now abbr {
+  color: white !important; /* 날짜 숫자 흰색 */
+  background: black; /* 검정 원 */
+  border-radius: 50%;
+  width: 24px; /* 크기 조정 */
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 일정 있는 날짜 배경 강조 */
