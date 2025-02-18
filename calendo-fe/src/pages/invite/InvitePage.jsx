@@ -3,6 +3,8 @@ import * as S from "./styled";
 import InviteModal from "../../components/common/modals/InviteModal";
 import ListSearch from "../../components/common/inputs/ListSearch";
 import members from "../../constants/mockmembers";
+import TitleInput from "../../components/common/inputs/TitleInput";
+import backIcon from "../../assets/icons/backbtn.svg";
 
 function InvitePage() {
     const [userInput, setUserInput] = useState(""); //검색창 상태관리
@@ -11,11 +13,11 @@ function InvitePage() {
     const [selectedUser, setSelectedUser] = useState(null);
 
 
-    // 🔹 검색 로직
+    //검색 로직
     const onSearch = (input) => {
         setUserInput(input); // 입력 값 업데이트
 
-        // 🔹 검색어가 포함된 사용자 필터링
+        //검색어가 포함된 사용자 필터링
         if (input.trim() === "") {
             setSearchResults(members); // 입력이 없으면 전체 목록 유지
         } else {
@@ -34,9 +36,17 @@ function InvitePage() {
     return (
         <S.Container>
             <S.Header>
-                {/* 뒤로가기 버튼 (만들어야함) */}
+                <S.BackButton>
+                    <img src={backIcon} alt="Back" width="32" height="32" />
+                </S.BackButton>
             </S.Header>
             <S.Nav>
+                <TitleInput
+                        height={37}
+                        placeholder="프로젝트명을 설정해주세요"
+                        value={""}
+                        onChange={""}
+                />
                 <ListSearch userInput={userInput} setUserInput={setUserInput} onSearch={onSearch}/>
             </S.Nav>
             <S.Main>

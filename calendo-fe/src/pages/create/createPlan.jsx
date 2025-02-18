@@ -3,26 +3,36 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import * as S from "./styled";
 import dayjs from 'dayjs';
+import "dayjs/locale/ko";
 import backIcon from "../../assets/icons/backbtn.svg";
+
+dayjs.locale("ko");
 
 function CreatePlan() {
     const [date, setDate] = useState(new Date());
     const [startTime, setStartTime] = useState("9:00 AM");
     const [endTime, setEndTime] = useState("22:00 PM");
+    const today = new Date();
 
     return (
         <S.Container>
             <S.Header>
                 <S.BackButton>
-                <img src={backIcon} alt="Back" width="24" height="24" />
+                <img src={backIcon} alt="Back" width="32" height="32" />
                 </S.BackButton>
                 <S.Title>New Plan Name</S.Title>
             </S.Header>
-            
             <S.Main>
                 <S.CalendarWrapper>
-                    <S.StyledCalendar onChange={setDate} value={date} selectRange={true}
-                    formatDay ={(locale, date) => dayjs(date).format('DD')}
+                    <S.StyledCalendar 
+                        onChange={setDate} 
+                        value={date} 
+                        next2Label={null}
+                        prev2Label={null}
+                        selectRange={true}
+                        minDate={today} 
+                        formatDay ={(locale, date) => dayjs(date).format('DD')}
+                        formatMonthYear={(locale, date) => dayjs(date).format('MMMM')}
                     />
                 </S.CalendarWrapper>
                 <S.TimePickerWrapper>

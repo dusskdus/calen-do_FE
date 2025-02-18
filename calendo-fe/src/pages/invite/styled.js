@@ -11,22 +11,32 @@ export const Container = styled.div`
 `;
 
 export const Header = styled.header`
-    width: 100%;
+    width: 95%;
     height: 44px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    position: relative;     
+    padding: 20px;
+`;
+
+export const BackButton = styled.button`
+    position: absolute;
+    background: none;
+    border: none;
+    cursor: pointer;
 `;
 
 export const Nav = styled.div`
     display: flex;
+    flex-direction: column;
     width: 95%;
 `;
 
 export const Main = styled.main`
     display: flex;
     flex-direction: column;
-    margin-top: 36px;
+    margin-top: 15px;
+    align-items: center;
     margin-bottom: 10px;
     width: 90%;
     height: 100vh;
@@ -37,6 +47,7 @@ export const Main = styled.main`
 
 export const ResultItem = styled.div`
     display: flex;
+    width: 90%;
     justify-content: space-between;
     align-items: center;
     padding: 15px 5px;

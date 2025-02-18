@@ -4,13 +4,17 @@ import Calendar from "react-calendar";
 
 /*plan css*/
 export const Container = styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-contents: center;
     align-items: center;
     width: 100%;
+    max-width: 412px;
     height: 100vh;
     background: #fff;
+    margin: 0px auto;
+    overflow: hidden;
 `;
 
 export const Header = styled.div`
@@ -18,7 +22,7 @@ export const Header = styled.div`
     justify-content: center; 
     align-items: center;     
     position: relative;       
-    width: 100%;
+    width: 95%;
     padding: 20px;
 `;
 
@@ -37,6 +41,7 @@ export const Title = styled.h1`
     font-weight: bold;
     text-align: center;
     flex-grow: 1; 
+    margin: 0px;
 `;
 
 export const Main = styled.div`
@@ -64,7 +69,7 @@ export const TimePickerWrapper = styled.div`
 `;
 
 export const Select = styled.select`
-    width: 25%;
+    width: 40%;
     padding: 8px;
     border-radius: 10px;
     border: 1px solid #ccc;
@@ -74,7 +79,7 @@ export const DatePickerWrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 40%;
+    width: 80%;
     margin: 10px 0;
 `;
 
@@ -85,7 +90,7 @@ export const Label = styled.label`
 `;
 
 export const DateInput = styled.input`
-    width: 100%;
+    width: 50%;
     padding: 8px;
     border-radius: 5px;
     border: 1px solid #ccc;
@@ -116,42 +121,43 @@ export const StyledCalendar = styled(Calendar)`
     border: none;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     
-    /* 네비게이션(월 변경 버튼) */
+    /* 네비게이션(월 변경 버튼 포함) */
     .react-calendar__navigation {
-        display: flex;
+        display: flex; /* 네비게이션 유지 */
         font-size: 18px;
-        justify-content: space-between;
+        justify-content: center; /* 가운데 정렬 */
         align-items: center;
         margin-bottom: 10px;
     }
 
-    /* 네비게이션 버튼 */
+    /* 네비게이션 안의 월/연도 버튼 스타일 */
     .react-calendar__navigation button {
         background: transparent;
         border: none;
-        font-size: 23px;
-        color:rgb(0, 0, 0);
-        cursor: pointer;
+        font-size: 20px;
+        font-weight: bold;
+        color: rgb(0, 0, 0);
+        cursor: default;
     }
 
     /* 요일 (SUN, MON 등) */
     .react-calendar__month-view__weekdays {
         text-transform: uppercase;
         font-size: 18px;
-        color:rgb(0, 0, 0);
+        color: rgb(0, 0, 0);
     }
 
     /* 날짜 선택 */
     .react-calendar__tile {
         border-radius: 8px;
-        padding: 15px;
+        padding: 10px;
         background: transparent;
         transition: 0.3s;
     }
 
     /* 오늘 날짜 */
     .react-calendar__tile--now {
-        background: #ffe3e3;
+        background: #FFE3E3;
         font-weight: bold;
         color: #ff6b6b;
         border-radius: 8px;
