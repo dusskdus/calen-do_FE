@@ -393,7 +393,6 @@
 
 /* 캘린더 컨테이너 */
 .calendar-container {
-  display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 10px;

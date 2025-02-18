@@ -46,6 +46,89 @@ const WholeSchedule = () => {
   const [selectedProject, setSelectedProject] = useState("");
   const [nickname, setNickname] = useState("");
 
+  const [editingTodo, setEditingTodo] = useState(null);
+const [editText, setEditText] = useState("");
+
+// 📌 투두리스트 조회 (선택한 투두 정보 가져오기)
+const fetchTodo = async (todoId) => {
+  try {
+    const response = await fetch(`/api/users/todo/${todoId}`);
+    if (!response.ok) throw new Error("투두 조회 실패");
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("투두 조회 오류:", error);
+  }
+};
+
+// 📌 투두리스트 내용을 클릭하면 편집 모드로 전환
+const handleEditTodo = async (todo) => {
+  const todoData = await fetchTodo(todo.id);
+  if (todoData) {
+    setEditingTodo(todo);
+    setEditText(todoData.title);
+  }
+};
+
+// 📌 투두리스트 내용 저장 (PUT 요청)
+const saveEditedTodo = async (todo) => {
+  if (!editText.trim() || editText === todo.title) {
+    setEditingTodo(null);
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/users/todo/${todo.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: editText }),
+    });
+
+    if (!response.ok) throw new Error("투두 수정 실패");
+
+    setTodoLists((prev) => {
+      const dateKey = selectedDate.toDateString();
+      return {
+        ...prev,
+        [dateKey]: prev[dateKey].map((item) =>
+          item.id === todo.id ? { ...item, title: editText } : item
+        ),
+      };
+    });
+
+    setEditingTodo(null);
+  } catch (error) {
+    console.error("투두 수정 오류:", error);
+  }
+};
+
+// 📌 투두리스트 삭제 (PUT 요청)
+const deleteTodo = async (todo) => {
+  try {
+    const response = await fetch(`/api/users/todo/${todo.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deleted: true }),
+    });
+
+    if (!response.ok) throw new Error("투두 삭제 실패");
+
+    setTodoLists((prev) => {
+      const dateKey = selectedDate.toDateString();
+      return {
+        ...prev,
+        [dateKey]: prev[dateKey].filter((item) => item.id !== todo.id),
+      };
+    });
+  } catch (error) {
+    console.error("투두 삭제 오류:", error);
+  }
+};
+
+
+
+
   const userId = localStorage.getItem("userId"); // ✅ 사용자 ID 가져오기
   // ✅ 초기 색상 불러오기 (GET 요청)
   useEffect(() => {
@@ -106,9 +189,6 @@ const updateColor = async (newColor) => {
 };
 
 
-
-
-
   useEffect(() => {
     // ✅ `localStorage`에서 닉네임 가져오기
     const storedNickname = localStorage.getItem("nickname") || "unknown";
@@ -147,9 +227,111 @@ const updateColor = async (newColor) => {
     }
   };
 
-  const handleDayClick = (date) => {
-    setSelectedDate(date);
+  // 📌 일정 조회 (선택한 날짜의 일정 불러오기)
+const fetchEventsForDate = async (date) => {
+  const dateKey = date.toDateString();
+
+  try {
+    const response = await fetch(`/api/users/schedules/${dateKey}`);
+    if (!response.ok) throw new Error("일정 불러오기 실패");
+
+    const data = await response.json();
+    setEvents((prev) => ({
+      ...prev,
+      [dateKey]: data.schedules || [], // 서버에서 받아온 일정 목록
+    }));
+  } catch (error) {
+    console.error("일정 불러오기 오류:", error);
+  }
+};
+
+// 📌 날짜 클릭 시 해당 날짜 일정 조회
+const handleDayClick = (date) => {
+  setSelectedDate(date);
+  fetchEventsForDate(date);
+};
+
+// 📌 일정 추가 (POST 요청)
+const addEvent = async () => {
+  const dateKey = selectedDate.toDateString();
+  const newEvent = {
+    title: newTitle,
+    type: eventType,
+    color: selectedColor,
+    time: selectedTime,
+    repeat: repeatOption,
+    alert: alertOption,
+    completed: false,
   };
+
+  try {
+    const response = await fetch("/api/users/schedules", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...newEvent, date: dateKey }),
+    });
+
+    if (!response.ok) throw new Error("일정 추가 실패");
+
+    const savedEvent = await response.json(); // 서버에서 저장된 일정 반환
+    setEvents((prev) => ({
+      ...prev,
+      [dateKey]: [...(prev[dateKey] || []), savedEvent],
+    }));
+
+    closeModal();
+  } catch (error) {
+    console.error("일정 추가 오류:", error);
+  }
+};
+
+// 📌 일정 수정 (PUT 요청)
+const updateEvent = async (scheduleId, updatedEvent) => {
+  try {
+    const response = await fetch(`/api/users/schedules/${scheduleId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedEvent),
+    });
+
+    if (!response.ok) throw new Error("일정 수정 실패");
+
+    setEvents((prev) => {
+      const dateKey = selectedDate.toDateString();
+      return {
+        ...prev,
+        [dateKey]: prev[dateKey].map((event) =>
+          event.id === scheduleId ? { ...event, ...updatedEvent } : event
+        ),
+      };
+    });
+
+    closeModal();
+  } catch (error) {
+    console.error("일정 수정 오류:", error);
+  }
+};
+
+// 📌 일정 삭제 (DELETE 요청)
+const deleteEvent = async (scheduleId) => {
+  try {
+    const response = await fetch(`/api/users/schedules/${scheduleId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) throw new Error("일정 삭제 실패");
+
+    setEvents((prev) => {
+      const dateKey = selectedDate.toDateString();
+      return {
+        ...prev,
+        [dateKey]: prev[dateKey].filter((event) => event.id !== scheduleId),
+      };
+    });
+  } catch (error) {
+    console.error("일정 삭제 오류:", error);
+  }
+};
 
   const openModal = () => {
     setIsModalOpen(true);
