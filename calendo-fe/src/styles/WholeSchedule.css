@@ -642,3 +642,81 @@
     font-size: 14px;
   }
 }
+
+
+/* 📌 일정 모달 내부 날짜 & 시간 선택 스타일 */
+.date-time {
+  margin-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid white;
+  cursor: pointer;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 📌 시간 선택 모달 */
+.date-time-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  margin: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 📌 모달 제목 */
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* 📌 모달 내부 라벨 */
+.modal-label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #333;
+}
+
+/* 📌 날짜 선택 input */
+.modal-datepicker {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+/* 📌 시간 선택 input */
+.modal-timepicker {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+/* 📌 확인 버튼 */
+.modal-confirm-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  background-color: #ff7070;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-confirm-btn:hover {
+  background-color: #e05252;
+}

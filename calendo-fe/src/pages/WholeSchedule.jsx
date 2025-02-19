@@ -16,6 +16,10 @@ import googleIcon from "../assets/images/google.svg";
 import teammemberIcon from "../assets/images/teammember.svg";
 import exitIcon from "../assets/images/x.svg";
 import downarrowIcon from "../assets/images/downarrow.svg"
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.module.css";
+
+
 
 
 Modal.setAppElement("#root");
@@ -48,6 +52,54 @@ const WholeSchedule = () => {
 
   const [editingTodo, setEditingTodo] = useState(null);
   const [editText, setEditText] = useState("");
+
+
+
+
+
+  // 일정 선택 상태 추가
+  const [isDateTimePickerOpen, setIsDateTimePickerOpen] = useState(false);
+  const [selectedStartDate, setSelectedStartDate] = useState(new Date());
+  const [selectedEndDate, setSelectedEndDate] = useState(new Date());
+  const [selectedStartTime, setSelectedStartTime] = useState(new Date());
+  const [selectedEndTime, setSelectedEndTime] = useState(new Date());
+
+  // 📌 시간 설정 클릭 시 모달 열기
+  const handleOpenDateTimePicker = () => {
+    setIsDateTimePickerOpen(true);
+  };
+
+  // 📌 선택 완료 후 적용
+
+  // const handleDateTimeSelection = () => {
+  //   const formattedStartDate = ${selectedStartDate.getMonth() + 1}월 ${selectedStartDate.getDate()}일;
+  //   const formattedEndDate = ${selectedEndDate.getMonth() + 1}월 ${selectedEndDate.getDate()}일;
+  //   const formattedStartTime = selectedStartTime.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: true });
+  //   const formattedEndTime = selectedEndTime.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: true });
+
+  //   setSelectedTime(${formattedStartDate} ~ ${formattedEndDate} ${formattedStartTime} - ${formattedEndTime});
+  //   setIsDateTimePickerOpen(false);
+  // };
+
+ // 📌 선택 완료 후 적용 (시간만 저장)
+const handleDateTimeSelection = () => {
+  const formattedStartTime = selectedStartTime.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const formattedEndTime = selectedEndTime.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  // ⏰ 날짜 제외하고 시간만 저장
+  setSelectedTime(`${formattedStartTime} - ${formattedEndTime}`);
+
+  setIsDateTimePickerOpen(false);
+};
 
 
 
@@ -534,6 +586,7 @@ const handleSave = () => {
   closeModal();
 };
 
+
   const handleDelete = (item, isTodo) => {
     const dateKey = selectedDate.toDateString();
 
@@ -831,7 +884,7 @@ const handleSave = () => {
     </select>
   </div>
 
-  <div className="date-time" style={{ marginTop: '10px', borderBottom: '2px solid white', paddingBottom: '10px' }}>
+  {/* <div className="date-time" style={{ marginTop: '10px', borderBottom: '2px solid white', paddingBottom: '10px' }}>
     <strong>{`${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 (${['일', '월', '화', '수', '목', '금', '토'][selectedDate.getDay()]})`}</strong>
     <input
       type="text"
@@ -848,7 +901,43 @@ const handleSave = () => {
         outline: 'none'
       }}
     />
-  </div>
+  </div> */}
+
+  {/* 📌 시간 설정 UI */}
+  <div className="date-time" onClick={handleOpenDateTimePicker}>
+        <strong>{selectedTime || "시간 설정 (예: 3:00-4:00PM)"}</strong>
+      </div>
+
+      {/* 📌 시간 선택 모달 */}
+      {isDateTimePickerOpen && (
+        <Modal
+          isOpen={isDateTimePickerOpen}
+          onRequestClose={() => setIsDateTimePickerOpen(false)}
+          className="date-time-modal"
+        >
+          <h3 className="modal-title">날짜 및 시간 선택</h3>
+
+          {/* 시작일 선택 */}
+          <label className="modal-label">시작일</label>
+          <DatePicker selected={selectedStartDate} onChange={(date) => setSelectedStartDate(date)} dateFormat="MM월 dd일" className="modal-datepicker" />
+
+          {/* 종료일 선택 */}
+          <label className="modal-label">종료일</label>
+          <DatePicker selected={selectedEndDate} onChange={(date) => setSelectedEndDate(date)} dateFormat="MM월 dd일" className="modal-datepicker" />
+
+          {/* 시작 시간 선택 */}
+          <label className="modal-label">시작 시간</label>
+          <DatePicker selected={selectedStartTime} onChange={(time) => setSelectedStartTime(time)} showTimeSelect showTimeSelectOnly timeIntervals={30} timeCaption="시간" dateFormat="h:mm aa" className="modal-timepicker" />
+
+          {/* 종료 시간 선택 */}
+          <label className="modal-label">종료 시간</label>
+          <DatePicker selected={selectedEndTime} onChange={(time) => setSelectedEndTime(time)} showTimeSelect showTimeSelectOnly timeIntervals={30} timeCaption="시간" dateFormat="h:mm aa" className="modal-timepicker" />
+
+          {/* 완료 버튼 */}
+          <button onClick={handleDateTimeSelection} className="modal-confirm-btn">확인</button>
+        </Modal>
+      )}
+   
 
   <div style={{ width: '100%', borderBottom: '2px solid white', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
   <div className="repeat-section" style={{ width: '25%' }}>
