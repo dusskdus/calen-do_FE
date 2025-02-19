@@ -1,14 +1,18 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import * as S from "./styled";
+import { useNavigate, useLocation } from "react-router-dom";
+import * as S from "./styled"
 import backIcon from "../../assets/icons/backbtn.svg";
 
-function CreateTime() {
+
+function CheckTime() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { date, startTime, endTime } = location.state || {}; // ✅ 전달된 데이터 받기
-    const [selectedTimes, setSelectedTimes] = useState(new Set()); // ✅ 선택된 시간 저장
-    const [isMouseDown, setIsMouseDown] = useState(false);
+    const { date, startTime, endTime, selectedTimes } = location.state || {};
+
+    console.log("date", date)
+    console.log("전달", selectedTimes)
+
+    // 선택된 시간이 없으면 빈 Set으로 초기화
+    const selectedSet = new Set(selectedTimes || []);
 
     //시간 목록 생성
     const generateTimeSlots = () => {
@@ -41,37 +45,6 @@ function CreateTime() {
     const timeSlots = generateTimeSlots();
     const dateColumns = generateDateColumns();
 
-    //클릭 시 선택/해제
-    const handleMouseDown = (time) => {
-        setIsMouseDown(true);
-        setSelectedTimes(prev => {
-            const newSet = new Set(prev);
-            newSet.has(time) ? newSet.delete(time) : newSet.add(time);
-            return newSet;
-        });
-    };
-
-    //드래그 시 선택 추가
-    const handleMouseMove = (time) => {
-        if (isMouseDown) {
-            setSelectedTimes(prev => {
-                const newSet = new Set(prev);
-                newSet.add(time);
-                return newSet;
-            });
-        }
-    };
-
-    //check 페이지로 시간 데이터 전송
-    const handleCreate = () => {
-        navigate("/check", { state: { date, startTime, endTime, selectedTimes: Array.from(selectedTimes) } });
-    };
-    
-
-    const handleMouseUp = () => {
-        setIsMouseDown(false);
-    };
-
     return (
         <S.Container>
             <S.Header>
@@ -81,7 +54,7 @@ function CreateTime() {
                 <S.Title>New Plan Name</S.Title>
             </S.Header>
             <S.Body>
-                <S.Table onMouseUp={handleMouseUp}>
+                <S.Table>
                     <thead>
                         <tr>
                             <th></th>
@@ -99,9 +72,7 @@ function CreateTime() {
                                     return (
                                         <td 
                                             key={j} 
-                                            className={selectedTimes.has(timeKey) ? "selected" : ""}
-                                            onMouseDown={() => handleMouseDown(timeKey)}
-                                            onMouseMove={() => handleMouseMove(timeKey)}
+                                            className={selectedSet.has(timeKey) ? "selected" : ""}
                                         />
                                     );
                                 })}
@@ -111,10 +82,11 @@ function CreateTime() {
                 </S.Table>
             </S.Body>
             <S.Bottom>
-                <S.SelectButton onClick={handleCreate}>선택 완료</S.SelectButton>
+                <S.SelectButton>수정하기</S.SelectButton>
             </S.Bottom>
         </S.Container>
     );
+
 }
 
-export default CreateTime;
+export default CheckTime;
