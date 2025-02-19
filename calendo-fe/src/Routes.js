@@ -6,7 +6,7 @@ import WholeSchedule from "./pages/WholeSchedule"; // 로그인 성공 시 이�
 import Home from "./pages/home/Home"; // 기존 Home 페이지
 import { InvitePage } from "./pages/invite/InvitePage";
 import CreatePlan from "./pages/create/createPlan";
-import { createTime } from "./pages/create/createTime";
+import CreateTime from "./pages/create/createTime";
 
 
 const Router = () => {
@@ -19,7 +19,7 @@ const Router = () => {
                     <Route path="/home" element={<Home />} /> {/* 기존 Home 페이지는 /home 경로로 이동 */}
                     <Route path="/invite" element={<InvitePage />} />
                     <Route path="/plan" element={<CreatePlan />} />
-                    <Route path="/time" element={<createTime />} />
+                    <Route path="/time" element={<CreateTime />} />
                 </Routes>
             </div>
         </BrowserRouter>

@@ -1,13 +1,16 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 100vh;
+    max-width: 412px;
+    height: calc(30px + 100vh);
     margin: 0 auto;
-    background-color: #fefdfb;
+    overflow: hidden;
+    background-color: #FFFCFC;
 `;
 
 export const Header = styled.header`
@@ -17,6 +20,7 @@ export const Header = styled.header`
     align-items: center;
     position: relative;     
     padding: 20px;
+    margin-top: 20px;
 `;
 
 export const BackButton = styled.button`
@@ -29,7 +33,9 @@ export const BackButton = styled.button`
 export const Nav = styled.div`
     display: flex;
     flex-direction: column;
+    align-items: center;
     width: 95%;
+    margin-top: 30px;
 `;
 
 export const Main = styled.main`

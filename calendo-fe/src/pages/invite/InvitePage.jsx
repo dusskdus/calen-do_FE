@@ -1,12 +1,15 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 import * as S from "./styled";
 import InviteModal from "../../components/common/modals/InviteModal";
 import ListSearch from "../../components/common/inputs/ListSearch";
 import members from "../../constants/mockmembers";
 import TitleInput from "../../components/common/inputs/TitleInput";
 import backIcon from "../../assets/icons/backbtn.svg";
+import addIcon from "../../assets/images/addmember.svg";
 
 function InvitePage() {
+    const navigate = useNavigate();
     const [userInput, setUserInput] = useState(""); //검색창 상태관리
     const [searchResults, setSearchResults] = useState(members);
     const [isModalOpen, setIsModalOpen] = useState(false);  
@@ -36,18 +39,22 @@ function InvitePage() {
     return (
         <S.Container>
             <S.Header>
-                <S.BackButton>
+                <S.BackButton onClick={() => navigate("/")}>
                     <img src={backIcon} alt="Back" width="32" height="32" />
                 </S.BackButton>
             </S.Header>
             <S.Nav>
                 <TitleInput
-                        height={37}
+                        height={57}
                         placeholder="프로젝트명을 설정해주세요"
                         value={""}
                         onChange={""}
                 />
-                <ListSearch userInput={userInput} setUserInput={setUserInput} onSearch={onSearch}/>
+                <ListSearch 
+                    userInput={userInput} 
+                    setUserInput={setUserInput} 
+                    onSearch={onSearch}
+                />
             </S.Nav>
             <S.Main>
                 {searchResults.length > 0 ? (
@@ -55,7 +62,7 @@ function InvitePage() {
                         <S.ResultItem key={user.id}>
                             <span>{user.username}</span>
                             <S.AddFriendButton onClick={() => handleAddFriendClick(user)}>
-                                👤
+                                <img src={addIcon} alt="add" width="24" height="24" />
                             </S.AddFriendButton>
                         </S.ResultItem>
                     ))

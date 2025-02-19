@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import * as S from "./styled";
@@ -9,15 +10,20 @@ import backIcon from "../../assets/icons/backbtn.svg";
 dayjs.locale("ko");
 
 function CreatePlan() {
+    const navigate = useNavigate();
     const [date, setDate] = useState(new Date());
     const [startTime, setStartTime] = useState("9:00 AM");
     const [endTime, setEndTime] = useState("22:00 PM");
     const today = new Date();
 
+    const handleCreate = () => {
+        navigate("/time", { state: { date, startTime, endTime } }); // ✅ 시간표 페이지로 데이터 전달
+    };
+
     return (
         <S.Container>
             <S.Header>
-                <S.BackButton>
+                <S.BackButton onClick={()=>navigate(-1)}>
                 <img src={backIcon} alt="Back" width="32" height="32" />
                 </S.BackButton>
                 <S.Title>New Plan Name</S.Title>
@@ -80,7 +86,7 @@ function CreatePlan() {
                     <S.DateInput placeholder="마감 날짜를 선택해주세요" type="date" />
                 </S.DatePickerWrapper>
 
-                <S.Button>Create</S.Button>
+                <S.Button onClick={handleCreate}>Create</S.Button>
             </S.Main>
         </S.Container>
     );

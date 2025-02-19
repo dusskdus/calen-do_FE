@@ -11,8 +11,8 @@ export const Container = styled.div`
     align-items: center;
     width: 100%;
     max-width: 412px;
-    height: 100vh;
-    background: #fff;
+    height: calc(30px + 100vh);
+    background: #FFFCFC;
     margin: 0px auto;
     overflow: hidden;
 `;
@@ -37,8 +37,8 @@ export const BackButton = styled.button`
 
 
 export const Title = styled.h1`
-    font-size: 30px;
-    font-weight: bold;
+    font-size: 25px;
+    font-weight: 600;
     text-align: center;
     flex-grow: 1; 
     margin: 0px;
@@ -71,7 +71,7 @@ export const TimePickerWrapper = styled.div`
 export const Select = styled.select`
     width: 40%;
     padding: 8px;
-    border-radius: 10px;
+    border-radius: 50px;
     border: 1px solid #ccc;
 `;
 
@@ -97,12 +97,12 @@ export const DateInput = styled.input`
 `;
 
 export const Button = styled.button`
-    width: 60%;
+    width: 50%;
     padding: 12px;
     margin-top: 20px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #ff6b6b;
+    font-size: 24px;
+    font-weight: 600;
+    background-color: #EA6B6B;
     color: white;
     border: none;
     border-radius: 5px;
@@ -136,16 +136,23 @@ export const StyledCalendar = styled(Calendar)`
         border: none;
         font-size: 20px;
         font-weight: bold;
-        color: rgb(0, 0, 0);
+        color: rgb(49, 49, 49);
         cursor: default;
     }
 
     /* 요일 (SUN, MON 등) */
     .react-calendar__month-view__weekdays {
         text-transform: uppercase;
-        font-size: 18px;
-        color: rgb(0, 0, 0);
+        font-size: 13px;
+        font-weight: 400;
+        color: rgb(163, 163, 163);
     }
+
+    .react-calendar__month-view__weekdays abbr[title] {
+    text-decoration: none !important; /* ✅ 점선 제거 */
+    border-bottom: none !important; /* ✅ 혹시 모를 밑줄 제거 */
+    }
+
 
     /* 날짜 선택 */
     .react-calendar__tile {
@@ -165,7 +172,7 @@ export const StyledCalendar = styled(Calendar)`
 
     /* 선택된 날짜 */
     .react-calendar__tile--active {
-        background: #ff6b6b;
+        background: #EA6B6B;
         color: white;
         font-weight: bold;
         border-radius: 35px;
@@ -177,3 +184,28 @@ export const StyledCalendar = styled(Calendar)`
         border-radius: 35px;
     }
     `;
+
+/* time */
+
+export const Table = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+    th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+    }
+    .selected {
+        background-color: pink; /* ✅ 선택된 시간 칸 스타일 */
+    }
+`;
+
+export const Button2 = styled.button`
+    width: 100%;
+    padding: 10px;
+    background-color: pink;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+`;
