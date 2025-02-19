@@ -20,15 +20,14 @@ const ListSearch = ({onSearch, userInput}) => {
         <div className={styles["list-search-container"]}>
             <div className={styles["list-search-img-container"]}>
                 <img src={Magnifier} alt="돋보기" />
-            </div>
-            <input 
+                <input 
                 className={styles["list-search-input-container"]}   
                 placeholder="검색어를 입력해 주세요." 
                 maxLength={20} 
                 value={userInput} 
                 onChange={handleInputChange} 
-                onKeyPress={handleKeyPress}
-            />
+                />
+            </div>
             <div className={styles["list-search-button-container"]}>
                 <button>Search</button>
             </div>

@@ -1,32 +1,48 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 100vh;
+    max-width: 412px;
+    height: calc(30px + 100vh);
     margin: 0 auto;
-    background-color: #fefdfb;
+    overflow: hidden;
+    background-color: #FFFDFD;
 `;
 
 export const Header = styled.header`
-    width: 100%;
+    width: 95%;
     height: 44px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    position: relative;     
+    padding: 20px;
+    margin-top: 20px;
+`;
+
+export const BackButton = styled.button`
+    position: absolute;
+    background: none;
+    border: none;
+    cursor: pointer;
 `;
 
 export const Nav = styled.div`
     display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 95%;
+    margin-top: 30px;
 `;
 
 export const Main = styled.main`
     display: flex;
     flex-direction: column;
-    margin-top: 36px;
+    margin-top: 15px;
+    align-items: center;
     margin-bottom: 10px;
     width: 90%;
     height: 100vh;
@@ -37,6 +53,7 @@ export const Main = styled.main`
 
 export const ResultItem = styled.div`
     display: flex;
+    width: 90%;
     justify-content: space-between;
     align-items: center;
     padding: 15px 5px;
