@@ -54,9 +54,6 @@ const WholeSchedule = () => {
   const [editText, setEditText] = useState("");
 
 
-
-
-
   // 일정 선택 상태 추가
   const [isDateTimePickerOpen, setIsDateTimePickerOpen] = useState(false);
   const [selectedStartDate, setSelectedStartDate] = useState(new Date());
@@ -69,17 +66,20 @@ const WholeSchedule = () => {
     setIsDateTimePickerOpen(true);
   };
 
-  // 📌 선택 완료 후 적용
+  // 📌 날짜 포맷 함수 추가
+const formatDateRange = (startDate, endDate) => {
+  const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+  
+  const formatSingleDate = (date) => {
+    return `${date.getMonth() + 1}월 ${date.getDate()}일(${daysOfWeek[date.getDay()]})`;
+  };
 
-  // const handleDateTimeSelection = () => {
-  //   const formattedStartDate = ${selectedStartDate.getMonth() + 1}월 ${selectedStartDate.getDate()}일;
-  //   const formattedEndDate = ${selectedEndDate.getMonth() + 1}월 ${selectedEndDate.getDate()}일;
-  //   const formattedStartTime = selectedStartTime.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: true });
-  //   const formattedEndTime = selectedEndTime.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: true });
-
-  //   setSelectedTime(${formattedStartDate} ~ ${formattedEndDate} ${formattedStartTime} - ${formattedEndTime});
-  //   setIsDateTimePickerOpen(false);
-  // };
+  if (startDate.toDateString() === endDate.toDateString()) {
+    return formatSingleDate(startDate); // 하루만 선택한 경우
+  } else {
+    return `${formatSingleDate(startDate)} - ${formatSingleDate(endDate)}`; // 여러 날짜 선택한 경우
+  }
+};
 
  // 📌 선택 완료 후 적용 (시간만 저장)
 const handleDateTimeSelection = () => {
@@ -237,38 +237,38 @@ const handleDayClick = (date) => {
 };
 
 // 📌 일정 추가 (POST 요청)
-const addEvent = async () => {
-  const dateKey = selectedDate.toDateString();
-  const newEvent = {
-    title: newTitle,
-    type: eventType,
-    color: selectedColor,
-    time: selectedTime,
-    repeat: repeatOption,
-    alert: alertOption,
-    completed: false,
-  };
+// const addEvent = async () => {
+//   const dateKey = selectedDate.toDateString();
+//   const newEvent = {
+//     title: newTitle,
+//     type: eventType,
+//     color: selectedColor,
+//     time: selectedTime,
+//     repeat: repeatOption,
+//     alert: alertOption,
+//     completed: false,
+//   };
 
-  try {
-    const response = await fetch("/api/users/schedules", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...newEvent, date: dateKey }),
-    });
+//   try {
+//     const response = await fetch("/api/users/schedules", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ ...newEvent, date: dateKey }),
+//     });
 
-    if (!response.ok) throw new Error("일정 추가 실패");
+//     if (!response.ok) throw new Error("일정 추가 실패");
 
-    const savedEvent = await response.json(); // 서버에서 저장된 일정 반환
-    setEvents((prev) => ({
-      ...prev,
-      [dateKey]: [...(prev[dateKey] || []), savedEvent],
-    }));
+//     const savedEvent = await response.json(); // 서버에서 저장된 일정 반환
+//     setEvents((prev) => ({
+//       ...prev,
+//       [dateKey]: [...(prev[dateKey] || []), savedEvent],
+//     }));
 
-    closeModal();
-  } catch (error) {
-    console.error("일정 추가 오류:", error);
-  }
-};
+//     closeModal();
+//   } catch (error) {
+//     console.error("일정 추가 오류:", error);
+//   }
+// };
 
 // 📌 일정 수정 (PUT 요청)
 const updateEvent = async (scheduleId, updatedEvent) => {
@@ -507,84 +507,212 @@ const handleProjectChange = (project) => {
 };
 
 
-const handleSave = () => {
-  const dateKey = selectedDate.toDateString();
+// const handleSave = () => {
+//   const dateKey = selectedDate.toDateString();
 
-  const newItem = {
-    title: newTitle,
-    type: eventType,
-    color: selectedColor,
-    time: selectedTime,
-    repeat: repeatOption,
-    alert: alertOption,
-    completed: false,
-  };
+//   const newItem = {
+//     title: newTitle,
+//     type: eventType,
+//     color: selectedColor,
+//     time: selectedTime,
+//     repeat: repeatOption,
+//     alert: alertOption,
+//     completed: false,
+//   };
+//     if (eventType === "Schedule") {
+//       // ✅ 일정(Schedule) 추가 로직
+//       let updatedEvents = { ...events };
+
+//       if (editingIndex !== null) {
+//           if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+//           updatedEvents[dateKey][editingIndex] = newItem;
+//           setEditingIndex(null);
+//       } else {
+//           if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+//           updatedEvents[dateKey].push(newItem);
+
+//           // 🔹 반복 일정 추가
+//           if (repeatOption === "weekly") {
+//               for (let i = 1; i <= 10; i++) {
+//                   let nextDate = new Date(selectedDate);
+//                   nextDate.setDate(nextDate.getDate() + i * 7);
+//                   const nextDateKey = nextDate.toDateString();
+//                   if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+//                   updatedEvents[nextDateKey].push({ ...newItem });
+//               }
+//           }
+
+//           if (repeatOption === "monthly") {
+//               for (let i = 1; i <= 12; i++) {
+//                   let nextDate = new Date(selectedDate);
+//                   nextDate.setMonth(nextDate.getMonth() + i);
+//                   const nextDateKey = nextDate.toDateString();
+//                   if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+//                   updatedEvents[nextDateKey].push({ ...newItem });
+//               }
+//           }
+
+//           if (repeatOption === "yearly") {
+//               for (let i = 1; i <= 5; i++) {
+//                   let nextDate = new Date(selectedDate);
+//                   nextDate.setFullYear(selectedDate.getFullYear() + i);
+//                   const nextDateKey = nextDate.toDateString();
+//                   if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+//                   updatedEvents[nextDateKey].push({ ...newItem });
+//               }
+//           }
+//       }
+
+//       setEvents(updatedEvents);
+
+//   } else if (eventType === "To-do") {
+//     // ✅ To-do 추가 및 수정 로직
+//     let updatedTodos = { ...todoLists };
+
+//     if (!updatedTodos[dateKey]) {
+//       updatedTodos[dateKey] = []; // ✅ 해당 날짜의 To-do 배열이 없으면 초기화
+//     }
+
+//     if (editingIndex !== null) {
+//       updatedTodos[dateKey][editingIndex] = newItem; // ✅ 기존 To-do 수정
+//       setEditingIndex(null);
+//     } else {
+//       updatedTodos[dateKey].push(newItem); // ✅ 새 To-do 추가
+//     }
+
+//     setTodoLists(updatedTodos);
+//   }
+
+//   closeModal();
+// };
+
+
+const handleSave = () => {
+  let currentDate = new Date(selectedStartDate);
+  const endDate = new Date(selectedEndDate);
+  let updatedEvents = { ...events };
+  let updatedTodos = { ...todoLists };
+
+  while (currentDate <= endDate) {
+    const dateKey = currentDate.toDateString();
+    const newItem = {
+      title: newTitle,
+      type: eventType,
+      color: selectedColor,
+      time: selectedTime,
+      repeat: repeatOption,
+      alert: alertOption,
+      completed: false,
+    };
+
     if (eventType === "Schedule") {
       // ✅ 일정(Schedule) 추가 로직
-      let updatedEvents = { ...events };
-
       if (editingIndex !== null) {
-          if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
-          updatedEvents[dateKey][editingIndex] = newItem;
-          setEditingIndex(null);
+        if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+        updatedEvents[dateKey][editingIndex] = newItem;
+        setEditingIndex(null);
       } else {
-          if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
-          updatedEvents[dateKey].push(newItem);
+        if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+        updatedEvents[dateKey].push(newItem);
 
-          // 🔹 반복 일정 추가
-          if (repeatOption === "weekly") {
-              for (let i = 1; i <= 10; i++) {
-                  let nextDate = new Date(selectedDate);
-                  nextDate.setDate(nextDate.getDate() + i * 7);
-                  const nextDateKey = nextDate.toDateString();
-                  if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
-                  updatedEvents[nextDateKey].push({ ...newItem });
-              }
+        // 🔹 반복 일정 추가
+        if (repeatOption === "weekly") {
+          for (let i = 1; i <= 10; i++) {
+            let nextDate = new Date(currentDate);
+            nextDate.setDate(nextDate.getDate() + i * 7);
+            const nextDateKey = nextDate.toDateString();
+            if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+            updatedEvents[nextDateKey].push({ ...newItem });
           }
+        }
 
-          if (repeatOption === "monthly") {
-              for (let i = 1; i <= 12; i++) {
-                  let nextDate = new Date(selectedDate);
-                  nextDate.setMonth(nextDate.getMonth() + i);
-                  const nextDateKey = nextDate.toDateString();
-                  if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
-                  updatedEvents[nextDateKey].push({ ...newItem });
-              }
+        if (repeatOption === "monthly") {
+          for (let i = 1; i <= 12; i++) {
+            let nextDate = new Date(currentDate);
+            nextDate.setMonth(nextDate.getMonth() + i);
+            const nextDateKey = nextDate.toDateString();
+            if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+            updatedEvents[nextDateKey].push({ ...newItem });
           }
+        }
 
-          if (repeatOption === "yearly") {
-              for (let i = 1; i <= 5; i++) {
-                  let nextDate = new Date(selectedDate);
-                  nextDate.setFullYear(selectedDate.getFullYear() + i);
-                  const nextDateKey = nextDate.toDateString();
-                  if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
-                  updatedEvents[nextDateKey].push({ ...newItem });
-              }
+        if (repeatOption === "yearly") {
+          for (let i = 1; i <= 5; i++) {
+            let nextDate = new Date(currentDate);
+            nextDate.setFullYear(currentDate.getFullYear() + i);
+            const nextDateKey = nextDate.toDateString();
+            if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+            updatedEvents[nextDateKey].push({ ...newItem });
           }
+        }
+      }
+      setEvents(updatedEvents);
+    } else if (eventType === "To-do") {
+      // ✅ To-do 추가 및 수정 로직
+      if (!updatedTodos[dateKey]) {
+        updatedTodos[dateKey] = []; // ✅ 해당 날짜의 To-do 배열이 없으면 초기화
       }
 
-      setEvents(updatedEvents);
+      if (editingIndex !== null) {
+        updatedTodos[dateKey][editingIndex] = newItem; // ✅ 기존 To-do 수정
+        setEditingIndex(null);
+      } else {
+        updatedTodos[dateKey].push(newItem); // ✅ 새 To-do 추가
+      }
 
-  } else if (eventType === "To-do") {
-    // ✅ To-do 추가 및 수정 로직
-    let updatedTodos = { ...todoLists };
-
-    if (!updatedTodos[dateKey]) {
-      updatedTodos[dateKey] = []; // ✅ 해당 날짜의 To-do 배열이 없으면 초기화
+      setTodoLists(updatedTodos);
     }
 
-    if (editingIndex !== null) {
-      updatedTodos[dateKey][editingIndex] = newItem; // ✅ 기존 To-do 수정
-      setEditingIndex(null);
-    } else {
-      updatedTodos[dateKey].push(newItem); // ✅ 새 To-do 추가
-    }
-
-    setTodoLists(updatedTodos);
+    // 다음 날짜로 이동
+    currentDate.setDate(currentDate.getDate() + 1);
   }
 
   closeModal();
 };
+
+
+// ✅ 일정 추가 (서버 요청 포함)
+const addEvent = async () => {
+  let currentDate = new Date(selectedStartDate);
+  const endDate = new Date(selectedEndDate);
+
+  while (currentDate <= endDate) {
+    const dateKey = currentDate.toDateString();
+    const newEvent = {
+      title: newTitle,
+      type: eventType,
+      color: selectedColor,
+      time: selectedTime,
+      repeat: repeatOption,
+      alert: alertOption,
+      completed: false,
+      date: dateKey, // ✅ 서버에서 날짜를 구분하도록 추가
+    };
+
+    try {
+      const response = await fetch("/api/users/schedules", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newEvent),
+      });
+
+      if (!response.ok) throw new Error("일정 추가 실패");
+
+      const savedEvent = await response.json();
+      setEvents((prev) => ({
+        ...prev,
+        [dateKey]: [...(prev[dateKey] || []), savedEvent],
+      }));
+    } catch (error) {
+      console.error("일정 추가 오류:", error);
+    }
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  closeModal();
+};
+
 
 
   const handleDelete = (item, isTodo) => {
@@ -903,9 +1031,13 @@ const handleSave = () => {
     />
   </div> */}
 
+ {/*📌 날짜 표시 추가*/}
+  <div className="date-display" onClick={handleOpenDateTimePicker}>
+    {formatDateRange(selectedStartDate, selectedEndDate)}
+  </div>
   {/* 📌 시간 설정 UI */}
   <div className="date-time" onClick={handleOpenDateTimePicker}>
-        <strong>{selectedTime || "시간 설정 (예: 3:00-4:00PM)"}</strong>
+        <label>{selectedTime || "시간 설정 (예: 3:00-4:00PM)"}</label>
       </div>
 
       {/* 📌 시간 선택 모달 */}

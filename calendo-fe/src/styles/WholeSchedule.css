@@ -396,6 +396,12 @@
     gap: 10px;
   }
   
+  .date-display{
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
   .date-time {
     margin-bottom: 10px;
   }
@@ -534,8 +540,8 @@
   color: white !important; /* 날짜 숫자 흰색 */
   background: black; /* 검정 원 */
   border-radius: 50%;
-  width: 24px; /* 크기 조정 */
-  height: 24px;
+  width: 16px; /* 크기 조정 */
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
