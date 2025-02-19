@@ -10,7 +10,7 @@ export const Container = styled.div`
     height: calc(30px + 100vh);
     margin: 0 auto;
     overflow: hidden;
-    background-color: #FFFCFC;
+    background-color: #FFFDFD;
 `;
 
 export const Header = styled.header`

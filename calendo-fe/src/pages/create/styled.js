@@ -11,8 +11,8 @@ export const Container = styled.div`
     align-items: center;
     width: 100%;
     max-width: 412px;
-    height: calc(30px + 100vh);
-    background: #FFFCFC;
+    height: 100vh;
+    background: #FFFDFD;
     margin: 0px auto;
     overflow: hidden;
 `;
@@ -63,15 +63,15 @@ export const CalendarWrapper = styled.div`
 
 export const TimePickerWrapper = styled.div`
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     width: 90%;
     margin: 10px 0;
 `;
 
 export const Select = styled.select`
-    width: 40%;
-    padding: 8px;
-    border-radius: 50px;
+    width: 28%;
+    padding: 6px;
+    border-radius: 8px;
     border: 1px solid #ccc;
 `;
 
@@ -79,8 +79,8 @@ export const DatePickerWrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 80%;
-    margin: 10px 0;
+    width: 70%;
+    margin: 8px 0;
 `;
 
 export const Label = styled.label`
@@ -185,27 +185,125 @@ export const StyledCalendar = styled(Calendar)`
     }
     `;
 
+
+
 /* time */
+export const Body = styled.div`
+    position: relative;
+    margin-top: 30px;
+    width: 85%;
+    padding-bottom: 20px;
+    height: calc(100vh - 100px); 
+    overflow: auto;
+`;
 
 export const Table = styled.table`
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate; /* ✅ 셀의 경계를 개별적으로 유지 */
+    border-spacing: 0; /* ✅ 셀 사이의 간격 제거 */
+    text-align: center;
+    color: #545454;
+    background-color: #FFFFFF;
+    margin-bottom: 60px;
+    table-layout: fixed;
+    border-radius: 10px;
+    border: 1px solid ##dfdfdf; /* ✅ 테이블 전체 테두리 */
+    overflow: hidden;
+
     th, td {
-        border: 1px solid #ccc;
-        padding: 10px;
-        text-align: center;
+        width: 70px;
+        height: 23px;
+        font-weight: 400;
+        line-height: 130%;
+        overflow: hidden;
+        white-space: nowrap;
+        border: 1px solid #dfdfdf; /* ✅ 개별 셀 테두리 유지 */
     }
+
+    /* ✅ 테이블 상단 헤더 스타일 */
+    thead {
+        position: sticky;
+        height: 33px;
+        font-size: 15px;
+        top: 0;
+        z-index: 20;
+        background-color: #FFFFFF;
+        border-bottom: 1px solid #dfdfdf; /* ✅ 헤더와 본문을 구분하는 선 추가 */
+    }
+
+    /* ✅ 첫 번째 열(시간) 스타일 */
+    td:first-child, th:first-child {
+        width: 55px;
+        position: sticky;
+        font-size: 13px;
+        left: 0;
+        z-index: 15;
+        background-color: #FFFFFF;
+        border-right: 1px solid #dfdfdf; /* ✅ 시간 칸의 오른쪽 테두리를 더 두껍게 설정 */
+    }
+
+    /* ✅ 둥근 테두리 적용 */
+    thead th:first-child {
+        border-top-left-radius: 10px;
+    }
+
+    thead th:last-child {
+        border-top-right-radius: 10px;
+    }
+
+    tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 10px;
+    }
+
+    tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 10px;
+    }
+        
+    thead {
+        position: sticky;
+        background-color: #FFFFFF;
+        top: 0;
+        z-index: 20;
+    }
+
+    td:first-child, th:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 15;
+        background-color: #FFFFFF; /* 고정된 열의 배경색 */
+    }
+
     .selected {
         background-color: pink; /* ✅ 선택된 시간 칸 스타일 */
     }
 `;
 
-export const Button2 = styled.button`
+
+export const Bottom = styled.div`
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    bottom: 0px;
+    max-width: 412px;
     width: 100%;
-    padding: 10px;
-    background-color: pink;
+    height: 80px;
+    background:#FFF8F8;
+    border-radius: 14px 14px 0 0;
+    z-index: 100;
+`;
+
+export const SelectButton = styled.button`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 80px);
+    height: 44px;
+    margin: 0px auto;
+    background-color: #EA6B6B;
     color: white;
+    font-size: 20px;
+    font-weight: 600;
     border: none;
-    border-radius: 5px;
-    margin-top: 10px;
+    border-radius: 7px;
 `;
