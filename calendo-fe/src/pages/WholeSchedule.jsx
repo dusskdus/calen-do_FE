@@ -16,6 +16,10 @@ import googleIcon from "../assets/images/google.svg";
 import teammemberIcon from "../assets/images/teammember.svg";
 import exitIcon from "../assets/images/x.svg";
 import downarrowIcon from "../assets/images/downarrow.svg"
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.module.css";
+
+
 
 
 Modal.setAppElement("#root");
@@ -45,6 +49,70 @@ const WholeSchedule = () => {
   const [projects, setProjects] = useState(["나의 일정"]);
   const [selectedProject, setSelectedProject] = useState("");
   const [nickname, setNickname] = useState("");
+
+  const [editingTodo, setEditingTodo] = useState(null);
+  const [editText, setEditText] = useState("");
+
+
+  // 일정 선택 상태 추가
+  const [isDateTimePickerOpen, setIsDateTimePickerOpen] = useState(false);
+  const [selectedStartDate, setSelectedStartDate] = useState(new Date());
+  const [selectedEndDate, setSelectedEndDate] = useState(new Date());
+  const [selectedStartTime, setSelectedStartTime] = useState(new Date());
+  const [selectedEndTime, setSelectedEndTime] = useState(new Date());
+
+  // 📌 시간 설정 클릭 시 모달 열기
+  const handleOpenDateTimePicker = () => {
+    setIsDateTimePickerOpen(true);
+  };
+
+  // 📌 날짜 포맷 함수 추가
+const formatDateRange = (startDate, endDate) => {
+  const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+  
+  const formatSingleDate = (date) => {
+    return `${date.getMonth() + 1}월 ${date.getDate()}일(${daysOfWeek[date.getDay()]})`;
+  };
+
+  if (startDate.toDateString() === endDate.toDateString()) {
+    return formatSingleDate(startDate); // 하루만 선택한 경우
+  } else {
+    return `${formatSingleDate(startDate)} - ${formatSingleDate(endDate)}`; // 여러 날짜 선택한 경우
+  }
+};
+
+ // 📌 선택 완료 후 적용 (시간만 저장)
+const handleDateTimeSelection = () => {
+  const formattedStartTime = selectedStartTime.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const formattedEndTime = selectedEndTime.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  // ⏰ 날짜 제외하고 시간만 저장
+  setSelectedTime(`${formattedStartTime} - ${formattedEndTime}`);
+
+  setIsDateTimePickerOpen(false);
+};
+
+
+
+const handleEditTodo = (todo, index) => {
+  setNewTitle(todo.title);
+  setEventType("To-do");
+  setSelectedColor(todo.color || "#FFCDD2"); // 색상 기본값 설정
+  setSelectedTime(todo.time || "");
+  setRepeatOption(todo.repeat || "none");
+  setAlertOption(todo.alert || "이벤트 당일(오전 9시)");
+  setEditingIndex(index); // 현재 수정 중인 To-do 인덱스 설정
+  setIsModalOpen(true);
+};
 
   const userId = localStorage.getItem("userId"); // ✅ 사용자 ID 가져오기
   // ✅ 초기 색상 불러오기 (GET 요청)
@@ -106,9 +174,6 @@ const updateColor = async (newColor) => {
 };
 
 
-
-
-
   useEffect(() => {
     // ✅ `localStorage`에서 닉네임 가져오기
     const storedNickname = localStorage.getItem("nickname") || "unknown";
@@ -147,9 +212,213 @@ const updateColor = async (newColor) => {
     }
   };
 
-  const handleDayClick = (date) => {
-    setSelectedDate(date);
+  // 📌 일정 조회 (선택한 날짜의 일정 불러오기)
+const fetchEventsForDate = async (date) => {
+  const dateKey = date.toDateString();
+
+  try {
+    const response = await fetch(`/api/users/schedules/${dateKey}`);
+    if (!response.ok) throw new Error("일정 불러오기 실패");
+
+    const data = await response.json();
+    setEvents((prev) => ({
+      ...prev,
+      [dateKey]: data.schedules || [], // 서버에서 받아온 일정 목록
+    }));
+  } catch (error) {
+    console.error("일정 불러오기 오류:", error);
+  }
+};
+
+// 📌 날짜 클릭 시 해당 날짜 일정 조회
+const handleDayClick = (date) => {
+  setSelectedDate(date);
+  fetchEventsForDate(date);
+};
+
+// 📌 일정 추가 (POST 요청)
+// const addEvent = async () => {
+//   const dateKey = selectedDate.toDateString();
+//   const newEvent = {
+//     title: newTitle,
+//     type: eventType,
+//     color: selectedColor,
+//     time: selectedTime,
+//     repeat: repeatOption,
+//     alert: alertOption,
+//     completed: false,
+//   };
+
+//   try {
+//     const response = await fetch("/api/users/schedules", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ ...newEvent, date: dateKey }),
+//     });
+
+//     if (!response.ok) throw new Error("일정 추가 실패");
+
+//     const savedEvent = await response.json(); // 서버에서 저장된 일정 반환
+//     setEvents((prev) => ({
+//       ...prev,
+//       [dateKey]: [...(prev[dateKey] || []), savedEvent],
+//     }));
+
+//     closeModal();
+//   } catch (error) {
+//     console.error("일정 추가 오류:", error);
+//   }
+// };
+
+// 📌 일정 수정 (PUT 요청)
+const updateEvent = async (scheduleId, updatedEvent) => {
+  try {
+    const response = await fetch(`/api/users/schedules/${scheduleId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedEvent),
+    });
+
+    if (!response.ok) throw new Error("일정 수정 실패");
+
+    setEvents((prev) => {
+      const dateKey = selectedDate.toDateString();
+      return {
+        ...prev,
+        [dateKey]: prev[dateKey].map((event) =>
+          event.id === scheduleId ? { ...event, ...updatedEvent } : event
+        ),
+      };
+    });
+
+    closeModal();
+  } catch (error) {
+    console.error("일정 수정 오류:", error);
+  }
+};
+
+// 📌 일정 삭제 (DELETE 요청)
+const handleDeleteEvent = async () => {
+  if (!deleteConfirm.item) return; // 삭제할 항목이 없으면 실행하지 않음
+
+  const scheduleId = deleteConfirm.item.id; // 일정 ID 가져오기
+  const dateKey = selectedDate.toDateString();
+
+  try {
+    const response = await fetch(`/api/users/schedules/${scheduleId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) throw new Error("일정 삭제 실패");
+
+    // 삭제 성공 후 상태 업데이트
+    setEvents((prev) => ({
+      ...prev,
+      [dateKey]: prev[dateKey]?.filter((event) => event.id !== scheduleId),
+    }));
+
+    setDeleteConfirm({ show: false, item: null, isTodo: false });
+    closeModal();
+  } catch (error) {
+    console.error("일정 삭제 오류:", error);
+  }
+};
+
+// 📌 투두리스트 조회 (선택한 투두 정보 가져오기)
+const fetchTodo = async (todoId) => {
+  try {
+    const response = await fetch(`/api/users/todo/${todoId}`);
+
+    if (!response.ok) throw new Error("투두 조회 실패");
+
+    const data = await response.json();
+    return data; // 서버에서 받은 투두 데이터 반환
+  } catch (error) {
+    console.error("투두 조회 오류:", error);
+    return null;
+  }
+};
+// 📌 To-do 추가 (POST 요청)
+const addTodo = async () => {
+  const dateKey = selectedDate.toDateString();
+  const newTodo = {
+    title: newTitle,
+    date: dateKey,
+    completed: false,
   };
+
+  try {
+    const response = await fetch("/api/users/todo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newTodo),
+    });
+
+    if (!response.ok) throw new Error("투두 추가 실패");
+
+    const savedTodo = await response.json(); // 서버에서 저장된 투두 반환
+    setTodoLists((prev) => ({
+      ...prev,
+      [dateKey]: [...(prev[dateKey] || []), savedTodo],
+    }));
+
+    closeModal();
+  } catch (error) {
+    console.error("투두 추가 오류:", error);
+  }
+};
+// 📌 To-do 수정 (PUT 요청)
+const updateTodo = async (todoId, updatedTodo) => {
+  try {
+    const response = await fetch(`/api/users/todo/${todoId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedTodo),
+    });
+
+    if (!response.ok) throw new Error("투두 수정 실패");
+
+    setTodoLists((prev) => {
+      const dateKey = selectedDate.toDateString();
+      return {
+        ...prev,
+        [dateKey]: prev[dateKey].map((todo) =>
+          todo.id === todoId ? { ...todo, ...updatedTodo } : todo
+        ),
+      };
+    });
+
+    closeModal();
+  } catch (error) {
+    console.error("투두 수정 오류:", error);
+  }
+};
+// 📌 To-do 삭제 (PUT 요청)
+const deleteTodo = async (todoId) => {
+  try {
+    const response = await fetch(`/api/users/todo/${todoId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deleted: true }),
+    });
+
+    if (!response.ok) throw new Error("투두 삭제 실패");
+
+    setTodoLists((prev) => {
+      const dateKey = selectedDate.toDateString();
+      return {
+        ...prev,
+        [dateKey]: prev[dateKey].filter((item) => item.id !== todoId),
+      };
+    });
+
+    setDeleteConfirm({ show: false, item: null, isTodo: false });
+  } catch (error) {
+    console.error("투두 삭제 오류:", error);
+  }
+};
+
+
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -238,76 +507,213 @@ const handleProjectChange = (project) => {
 };
 
 
-const handleSave = () => {
-  const dateKey = selectedDate.toDateString();
+// const handleSave = () => {
+//   const dateKey = selectedDate.toDateString();
 
-  const newItem = {
-    title: newTitle,
-    type: eventType,
-    color: selectedColor,
-    time: selectedTime,
-    repeat: repeatOption,
-    alert: alertOption,
-    completed: false,
-  };
+//   const newItem = {
+//     title: newTitle,
+//     type: eventType,
+//     color: selectedColor,
+//     time: selectedTime,
+//     repeat: repeatOption,
+//     alert: alertOption,
+//     completed: false,
+//   };
+//     if (eventType === "Schedule") {
+//       // ✅ 일정(Schedule) 추가 로직
+//       let updatedEvents = { ...events };
+
+//       if (editingIndex !== null) {
+//           if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+//           updatedEvents[dateKey][editingIndex] = newItem;
+//           setEditingIndex(null);
+//       } else {
+//           if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+//           updatedEvents[dateKey].push(newItem);
+
+//           // 🔹 반복 일정 추가
+//           if (repeatOption === "weekly") {
+//               for (let i = 1; i <= 10; i++) {
+//                   let nextDate = new Date(selectedDate);
+//                   nextDate.setDate(nextDate.getDate() + i * 7);
+//                   const nextDateKey = nextDate.toDateString();
+//                   if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+//                   updatedEvents[nextDateKey].push({ ...newItem });
+//               }
+//           }
+
+//           if (repeatOption === "monthly") {
+//               for (let i = 1; i <= 12; i++) {
+//                   let nextDate = new Date(selectedDate);
+//                   nextDate.setMonth(nextDate.getMonth() + i);
+//                   const nextDateKey = nextDate.toDateString();
+//                   if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+//                   updatedEvents[nextDateKey].push({ ...newItem });
+//               }
+//           }
+
+//           if (repeatOption === "yearly") {
+//               for (let i = 1; i <= 5; i++) {
+//                   let nextDate = new Date(selectedDate);
+//                   nextDate.setFullYear(selectedDate.getFullYear() + i);
+//                   const nextDateKey = nextDate.toDateString();
+//                   if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+//                   updatedEvents[nextDateKey].push({ ...newItem });
+//               }
+//           }
+//       }
+
+//       setEvents(updatedEvents);
+
+//   } else if (eventType === "To-do") {
+//     // ✅ To-do 추가 및 수정 로직
+//     let updatedTodos = { ...todoLists };
+
+//     if (!updatedTodos[dateKey]) {
+//       updatedTodos[dateKey] = []; // ✅ 해당 날짜의 To-do 배열이 없으면 초기화
+//     }
+
+//     if (editingIndex !== null) {
+//       updatedTodos[dateKey][editingIndex] = newItem; // ✅ 기존 To-do 수정
+//       setEditingIndex(null);
+//     } else {
+//       updatedTodos[dateKey].push(newItem); // ✅ 새 To-do 추가
+//     }
+
+//     setTodoLists(updatedTodos);
+//   }
+
+//   closeModal();
+// };
+
+
+const handleSave = () => {
+  let currentDate = new Date(selectedStartDate);
+  const endDate = new Date(selectedEndDate);
+  let updatedEvents = { ...events };
+  let updatedTodos = { ...todoLists };
+
+  while (currentDate <= endDate) {
+    const dateKey = currentDate.toDateString();
+    const newItem = {
+      title: newTitle,
+      type: eventType,
+      color: selectedColor,
+      time: selectedTime,
+      repeat: repeatOption,
+      alert: alertOption,
+      completed: false,
+    };
+
     if (eventType === "Schedule") {
       // ✅ 일정(Schedule) 추가 로직
-      let updatedEvents = { ...events };
-
       if (editingIndex !== null) {
-          if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
-          updatedEvents[dateKey][editingIndex] = newItem;
-          setEditingIndex(null);
+        if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+        updatedEvents[dateKey][editingIndex] = newItem;
+        setEditingIndex(null);
       } else {
-          if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
-          updatedEvents[dateKey].push(newItem);
+        if (!updatedEvents[dateKey]) updatedEvents[dateKey] = [];
+        updatedEvents[dateKey].push(newItem);
 
-          // 🔹 반복 일정 추가
-          if (repeatOption === "weekly") {
-              for (let i = 1; i <= 10; i++) {
-                  let nextDate = new Date(selectedDate);
-                  nextDate.setDate(nextDate.getDate() + i * 7);
-                  const nextDateKey = nextDate.toDateString();
-                  if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
-                  updatedEvents[nextDateKey].push({ ...newItem });
-              }
+        // 🔹 반복 일정 추가
+        if (repeatOption === "weekly") {
+          for (let i = 1; i <= 10; i++) {
+            let nextDate = new Date(currentDate);
+            nextDate.setDate(nextDate.getDate() + i * 7);
+            const nextDateKey = nextDate.toDateString();
+            if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+            updatedEvents[nextDateKey].push({ ...newItem });
           }
+        }
 
-          if (repeatOption === "monthly") {
-              for (let i = 1; i <= 12; i++) {
-                  let nextDate = new Date(selectedDate);
-                  nextDate.setMonth(nextDate.getMonth() + i);
-                  const nextDateKey = nextDate.toDateString();
-                  if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
-                  updatedEvents[nextDateKey].push({ ...newItem });
-              }
+        if (repeatOption === "monthly") {
+          for (let i = 1; i <= 12; i++) {
+            let nextDate = new Date(currentDate);
+            nextDate.setMonth(nextDate.getMonth() + i);
+            const nextDateKey = nextDate.toDateString();
+            if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+            updatedEvents[nextDateKey].push({ ...newItem });
           }
+        }
 
-          if (repeatOption === "yearly") {
-              for (let i = 1; i <= 5; i++) {
-                  let nextDate = new Date(selectedDate);
-                  nextDate.setFullYear(selectedDate.getFullYear() + i);
-                  const nextDateKey = nextDate.toDateString();
-                  if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
-                  updatedEvents[nextDateKey].push({ ...newItem });
-              }
+        if (repeatOption === "yearly") {
+          for (let i = 1; i <= 5; i++) {
+            let nextDate = new Date(currentDate);
+            nextDate.setFullYear(currentDate.getFullYear() + i);
+            const nextDateKey = nextDate.toDateString();
+            if (!updatedEvents[nextDateKey]) updatedEvents[nextDateKey] = [];
+            updatedEvents[nextDateKey].push({ ...newItem });
           }
+        }
+      }
+      setEvents(updatedEvents);
+    } else if (eventType === "To-do") {
+      // ✅ To-do 추가 및 수정 로직
+      if (!updatedTodos[dateKey]) {
+        updatedTodos[dateKey] = []; // ✅ 해당 날짜의 To-do 배열이 없으면 초기화
       }
 
-      setEvents(updatedEvents);
-
-  } else if (eventType === "To-do") {
-      // ✅ To-do List 추가 로직
-      let updatedTodos = { ...todoLists };
-
-      if (!updatedTodos[dateKey]) updatedTodos[dateKey] = [];
-      updatedTodos[dateKey].push(newItem);
+      if (editingIndex !== null) {
+        updatedTodos[dateKey][editingIndex] = newItem; // ✅ 기존 To-do 수정
+        setEditingIndex(null);
+      } else {
+        updatedTodos[dateKey].push(newItem); // ✅ 새 To-do 추가
+      }
 
       setTodoLists(updatedTodos);
+    }
+
+    // 다음 날짜로 이동
+    currentDate.setDate(currentDate.getDate() + 1);
   }
 
   closeModal();
 };
+
+
+// ✅ 일정 추가 (서버 요청 포함)
+const addEvent = async () => {
+  let currentDate = new Date(selectedStartDate);
+  const endDate = new Date(selectedEndDate);
+
+  while (currentDate <= endDate) {
+    const dateKey = currentDate.toDateString();
+    const newEvent = {
+      title: newTitle,
+      type: eventType,
+      color: selectedColor,
+      time: selectedTime,
+      repeat: repeatOption,
+      alert: alertOption,
+      completed: false,
+      date: dateKey, // ✅ 서버에서 날짜를 구분하도록 추가
+    };
+
+    try {
+      const response = await fetch("/api/users/schedules", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newEvent),
+      });
+
+      if (!response.ok) throw new Error("일정 추가 실패");
+
+      const savedEvent = await response.json();
+      setEvents((prev) => ({
+        ...prev,
+        [dateKey]: [...(prev[dateKey] || []), savedEvent],
+      }));
+    } catch (error) {
+      console.error("일정 추가 오류:", error);
+    }
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  closeModal();
+};
+
+
 
   const handleDelete = (item, isTodo) => {
     const dateKey = selectedDate.toDateString();
@@ -496,16 +902,21 @@ const handleSave = () => {
           <h3>To-do List</h3>
           <div className="todo-list">
             {(todoLists[selectedDate.toDateString()] || []).map((todo, idx) => (
-              <div key={idx} className="todo-item">
+              <div key={idx} className="todo-item" onClick={(e) => {
+                if (e.target.type !== "checkbox") { // ✅ 체크박스 클릭이 아닌 경우만 실행
+                  handleEditTodo(todo, idx);
+                }
+              }}
+            >
                 <input
                   type="checkbox"
                   checked={todo.completed}
-                  onChange={() => toggleTodo(todo)}
+                  onChange={(e) => {
+                    e.stopPropagation(); // ✅ 모달이 열리지 않도록 이벤트 전파 방지
+                    toggleTodo(todo);
+                  }}
                 />
                 <span className={todo.completed ? "completed" : "todo-text"}>{todo.title}</span>
-                <div className="delete-container">
-                <img src={trashIcon} alt="삭제 아이콘" className="delete-icon" onClick={() => setDeleteConfirm({ show: true, item: todo, isTodo: true })}/>
-                </div>
               </div>
             ))}
           </div>
@@ -519,33 +930,57 @@ const handleSave = () => {
 
       {/* Add Schedule Modal */}
       <Modal
- isOpen={isModalOpen}
- onRequestClose={closeModal}
- className="modal"
- overlayClassName="overlay"
- style={{
-   content: {
-     bottom: '0',
-     top: 'auto',
-     borderRadius: '20px 20px 0 0',
-     padding: '20px',
-     position: 'fixed',
-     width: '100%',
-     maxWidth: '500px',
-     left: '50%',
-     transform: 'translateX(-50%)'
-   },
-   overlay: {
-     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-     display: 'flex',
-     alignItems: 'flex-end',
-     justifyContent: 'center'
-   }
- }}
->
+      isOpen={isModalOpen}
+      onRequestClose={closeModal}
+      className="modal"
+      overlayClassName="overlay"
+      style={{
+        content: {
+          bottom: '0',
+          top: 'auto',
+          borderRadius: '20px 20px 0 0',
+          padding: '20px',
+          position: 'fixed',
+          width: '100%',
+          maxWidth: '500px',
+          left: '50%',
+          transform: 'translateX(-50%)'
+        },
+      overlay: {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center'
+      }
+    }}
+    >
         <div className="modal-header">
-          <button className="close-btn" onClick={closeModal}> &times; </button>
-          <button className="save-btn" onClick={handleSave}> ✓ </button>
+          <img src={exitIcon} className="close-btn" onClick={closeModal}/> 
+          {/* 삭제 아이콘 추가 */}
+          <img 
+            src={trashIcon} 
+            alt="삭제" 
+            className="delete-icon"
+            onClick={() => {
+              if (editingIndex !== null) {
+                const dateKey = selectedDate.toDateString();
+                if (eventType === "To-do") {
+                  const todoToDelete = todoLists[dateKey]?.[editingIndex];
+                  if (todoToDelete) {
+                    setDeleteConfirm({ show: true, item: todoToDelete, isTodo: true });
+                    closeModal();
+                  }
+                } else if (eventType === "Schedule") {
+                  const eventToDelete = events[dateKey]?.[editingIndex];
+                  if (eventToDelete) {
+                    setDeleteConfirm({ show: true, item: eventToDelete, isTodo: false });
+                    closeModal();
+                  }
+                } 
+              }
+            }}
+            />
+          <img src={checkIcon} className="save-btn" onClick={handleSave}/> 
         </div>
 
   <input
@@ -577,7 +1012,7 @@ const handleSave = () => {
     </select>
   </div>
 
-  <div className="date-time" style={{ marginTop: '10px', borderBottom: '2px solid white', paddingBottom: '10px' }}>
+  {/* <div className="date-time" style={{ marginTop: '10px', borderBottom: '2px solid white', paddingBottom: '10px' }}>
     <strong>{`${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 (${['일', '월', '화', '수', '목', '금', '토'][selectedDate.getDay()]})`}</strong>
     <input
       type="text"
@@ -594,7 +1029,47 @@ const handleSave = () => {
         outline: 'none'
       }}
     />
+  </div> */}
+
+ {/*📌 날짜 표시 추가*/}
+  <div className="date-display" onClick={handleOpenDateTimePicker}>
+    {formatDateRange(selectedStartDate, selectedEndDate)}
   </div>
+  {/* 📌 시간 설정 UI */}
+  <div className="date-time" onClick={handleOpenDateTimePicker}>
+        <label>{selectedTime || "시간 설정 (예: 3:00-4:00PM)"}</label>
+      </div>
+
+      {/* 📌 시간 선택 모달 */}
+      {isDateTimePickerOpen && (
+        <Modal
+          isOpen={isDateTimePickerOpen}
+          onRequestClose={() => setIsDateTimePickerOpen(false)}
+          className="date-time-modal"
+        >
+          <h3 className="modal-title">날짜 및 시간 선택</h3>
+
+          {/* 시작일 선택 */}
+          <label className="modal-label">시작일</label>
+          <DatePicker selected={selectedStartDate} onChange={(date) => setSelectedStartDate(date)} dateFormat="MM월 dd일" className="modal-datepicker" />
+
+          {/* 종료일 선택 */}
+          <label className="modal-label">종료일</label>
+          <DatePicker selected={selectedEndDate} onChange={(date) => setSelectedEndDate(date)} dateFormat="MM월 dd일" className="modal-datepicker" />
+
+          {/* 시작 시간 선택 */}
+          <label className="modal-label">시작 시간</label>
+          <DatePicker selected={selectedStartTime} onChange={(time) => setSelectedStartTime(time)} showTimeSelect showTimeSelectOnly timeIntervals={30} timeCaption="시간" dateFormat="h:mm aa" className="modal-timepicker" />
+
+          {/* 종료 시간 선택 */}
+          <label className="modal-label">종료 시간</label>
+          <DatePicker selected={selectedEndTime} onChange={(time) => setSelectedEndTime(time)} showTimeSelect showTimeSelectOnly timeIntervals={30} timeCaption="시간" dateFormat="h:mm aa" className="modal-timepicker" />
+
+          {/* 완료 버튼 */}
+          <button onClick={handleDateTimeSelection} className="modal-confirm-btn">확인</button>
+        </Modal>
+      )}
+   
 
   <div style={{ width: '100%', borderBottom: '2px solid white', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
   <div className="repeat-section" style={{ width: '25%' }}>

@@ -234,6 +234,21 @@
   
 }
 
+/* 삭제 아이콘 스타일 */
+.delete-icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  margin-right: 8px;
+  filter: opacity(0.6);
+  transition: filter 0.2s;
+  
+}
+
+.delete-icon:hover {
+  filter: opacity(1);
+}
+
 
 /* To-do 리스트 스타일 */
 .todo-list {
@@ -340,15 +355,23 @@
   background: #f0f0f0;
 }
 
-/* 버튼 크기 조정 */
+/* 닫기 버튼 스타일 */
 .close-btn,
 .save-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #d9534f;
+  width: 20px;  /* 아이콘 크기 */
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.7; /* 기본 투명도 */
+  transition: opacity 0.2s;
+  color: #d9534f;
 }
+
+.close-btn:hover,
+.save-btn:hover {
+  opacity: 1; /* 마우스 올리면 투명도 제거 */
+}
+
+
 
 /* 입력 필드 크기 조정 */
 .modal-input {
@@ -373,6 +396,12 @@
     gap: 10px;
   }
   
+  .date-display{
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
   .date-time {
     margin-bottom: 10px;
   }
@@ -393,7 +422,6 @@
 
 /* 캘린더 컨테이너 */
 .calendar-container {
-  display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 10px;
@@ -512,8 +540,8 @@
   color: white !important; /* 날짜 숫자 흰색 */
   background: black; /* 검정 원 */
   border-radius: 50%;
-  width: 24px; /* 크기 조정 */
-  height: 24px;
+  width: 16px; /* 크기 조정 */
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -619,4 +647,82 @@
   .event-title {
     font-size: 14px;
   }
+}
+
+
+/* 📌 일정 모달 내부 날짜 & 시간 선택 스타일 */
+.date-time {
+  margin-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid white;
+  cursor: pointer;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 📌 시간 선택 모달 */
+.date-time-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  margin: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 📌 모달 제목 */
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* 📌 모달 내부 라벨 */
+.modal-label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #333;
+}
+
+/* 📌 날짜 선택 input */
+.modal-datepicker {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+/* 📌 시간 선택 input */
+.modal-timepicker {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+/* 📌 확인 버튼 */
+.modal-confirm-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  background-color: #ff7070;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-confirm-btn:hover {
+  background-color: #e05252;
 }
