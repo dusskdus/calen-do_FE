@@ -73,6 +73,14 @@ const handleEditTodo = (todo, index) => {
   setIsModalOpen(true);
 };
 
+// 📌 투두리스트 내용을 클릭하면 편집 모드로 전환
+// const handleEditTodo = async (todo) => {
+//   const todoData = await fetchTodo(todo.id);
+//   if (todoData) {
+//     setEditingTodo(todo);
+//     setEditText(todoData.title);
+//   }
+// };
 
 // 📌 투두리스트 내용 저장 (PUT 요청)
 const saveEditedTodo = async (todo) => {
@@ -489,19 +497,21 @@ const handleSave = () => {
       setEvents(updatedEvents);
 
   } else if (eventType === "To-do") {
-      // ✅ To-do List 추가 로직
-      // ✅ To-do 수정 또는 추가
-      let updatedTodos = { ...todoLists };
+    // ✅ To-do 추가 및 수정 로직
+    let updatedTodos = { ...todoLists };
 
-      if (editingIndex !== null) {
-        updatedTodos[dateKey][editingIndex] = newItem;
-        setEditingIndex(null);
-      } else {
-        if (!updatedTodos[dateKey]) updatedTodos[dateKey] = [];
-        updatedTodos[dateKey].push(newItem);
-      }
+    if (!updatedTodos[dateKey]) {
+      updatedTodos[dateKey] = []; // ✅ 해당 날짜의 To-do 배열이 없으면 초기화
+    }
 
-      setTodoLists(updatedTodos);
+    if (editingIndex !== null) {
+      updatedTodos[dateKey][editingIndex] = newItem; // ✅ 기존 To-do 수정
+      setEditingIndex(null);
+    } else {
+      updatedTodos[dateKey].push(newItem); // ✅ 새 To-do 추가
+    }
+
+    setTodoLists(updatedTodos);
   }
 
   closeModal();
@@ -709,9 +719,6 @@ const handleSave = () => {
                   }}
                 />
                 <span className={todo.completed ? "completed" : "todo-text"}>{todo.title}</span>
-                <div className="delete-container">
-                <img src={trashIcon} alt="삭제 아이콘" className="delete-icon" onClick={() => setDeleteConfirm({ show: true, item: todo, isTodo: true })}/>
-                </div>
               </div>
             ))}
           </div>
@@ -759,12 +766,19 @@ const handleSave = () => {
             onClick={() => {
               if (editingIndex !== null) {
                 const dateKey = selectedDate.toDateString();
-                const eventToDelete = events[dateKey]?.[editingIndex];
-
-                if (eventToDelete) {
-                  setDeleteConfirm({ show: true, item: eventToDelete, isTodo: false });
-                  closeModal();
-                }
+                if (eventType === "To-do") {
+                  const todoToDelete = todoLists[dateKey]?.[editingIndex];
+                  if (todoToDelete) {
+                    setDeleteConfirm({ show: true, item: todoToDelete, isTodo: true });
+                    closeModal();
+                  }
+                } else if (eventType === "Schedule") {
+                  const eventToDelete = events[dateKey]?.[editingIndex];
+                  if (eventToDelete) {
+                    setDeleteConfirm({ show: true, item: eventToDelete, isTodo: false });
+                    closeModal();
+                  }
+                } 
               }
             }}
             />
