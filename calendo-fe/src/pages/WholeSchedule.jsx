@@ -62,14 +62,17 @@ const fetchTodo = async (todoId) => {
   }
 };
 
-// 📌 투두리스트 내용을 클릭하면 편집 모드로 전환
-const handleEditTodo = async (todo) => {
-  const todoData = await fetchTodo(todo.id);
-  if (todoData) {
-    setEditingTodo(todo);
-    setEditText(todoData.title);
-  }
+const handleEditTodo = (todo, index) => {
+  setNewTitle(todo.title);
+  setEventType("To-do");
+  setSelectedColor(todo.color || "#FFCDD2"); // 색상 기본값 설정
+  setSelectedTime(todo.time || "");
+  setRepeatOption(todo.repeat || "none");
+  setAlertOption(todo.alert || "이벤트 당일(오전 9시)");
+  setEditingIndex(index); // 현재 수정 중인 To-do 인덱스 설정
+  setIsModalOpen(true);
 };
+
 
 // 📌 투두리스트 내용 저장 (PUT 요청)
 const saveEditedTodo = async (todo) => {
@@ -313,7 +316,12 @@ const updateEvent = async (scheduleId, updatedEvent) => {
 };
 
 // 📌 일정 삭제 (DELETE 요청)
-const deleteEvent = async (scheduleId) => {
+const handleDeleteEvent = async () => {
+  if (!deleteConfirm.item) return; // 삭제할 항목이 없으면 실행하지 않음
+
+  const scheduleId = deleteConfirm.item.id; // 일정 ID 가져오기
+  const dateKey = selectedDate.toDateString();
+
   try {
     const response = await fetch(`/api/users/schedules/${scheduleId}`, {
       method: "DELETE",
@@ -321,17 +329,19 @@ const deleteEvent = async (scheduleId) => {
 
     if (!response.ok) throw new Error("일정 삭제 실패");
 
-    setEvents((prev) => {
-      const dateKey = selectedDate.toDateString();
-      return {
-        ...prev,
-        [dateKey]: prev[dateKey].filter((event) => event.id !== scheduleId),
-      };
-    });
+    // 삭제 성공 후 상태 업데이트
+    setEvents((prev) => ({
+      ...prev,
+      [dateKey]: prev[dateKey]?.filter((event) => event.id !== scheduleId),
+    }));
+
+    setDeleteConfirm({ show: false, item: null, isTodo: false });
+    closeModal();
   } catch (error) {
     console.error("일정 삭제 오류:", error);
   }
 };
+
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -480,10 +490,16 @@ const handleSave = () => {
 
   } else if (eventType === "To-do") {
       // ✅ To-do List 추가 로직
+      // ✅ To-do 수정 또는 추가
       let updatedTodos = { ...todoLists };
 
-      if (!updatedTodos[dateKey]) updatedTodos[dateKey] = [];
-      updatedTodos[dateKey].push(newItem);
+      if (editingIndex !== null) {
+        updatedTodos[dateKey][editingIndex] = newItem;
+        setEditingIndex(null);
+      } else {
+        if (!updatedTodos[dateKey]) updatedTodos[dateKey] = [];
+        updatedTodos[dateKey].push(newItem);
+      }
 
       setTodoLists(updatedTodos);
   }
@@ -678,11 +694,19 @@ const handleSave = () => {
           <h3>To-do List</h3>
           <div className="todo-list">
             {(todoLists[selectedDate.toDateString()] || []).map((todo, idx) => (
-              <div key={idx} className="todo-item">
+              <div key={idx} className="todo-item" onClick={(e) => {
+                if (e.target.type !== "checkbox") { // ✅ 체크박스 클릭이 아닌 경우만 실행
+                  handleEditTodo(todo, idx);
+                }
+              }}
+            >
                 <input
                   type="checkbox"
                   checked={todo.completed}
-                  onChange={() => toggleTodo(todo)}
+                  onChange={(e) => {
+                    e.stopPropagation(); // ✅ 모달이 열리지 않도록 이벤트 전파 방지
+                    toggleTodo(todo);
+                  }}
                 />
                 <span className={todo.completed ? "completed" : "todo-text"}>{todo.title}</span>
                 <div className="delete-container">
@@ -701,33 +725,50 @@ const handleSave = () => {
 
       {/* Add Schedule Modal */}
       <Modal
- isOpen={isModalOpen}
- onRequestClose={closeModal}
- className="modal"
- overlayClassName="overlay"
- style={{
-   content: {
-     bottom: '0',
-     top: 'auto',
-     borderRadius: '20px 20px 0 0',
-     padding: '20px',
-     position: 'fixed',
-     width: '100%',
-     maxWidth: '500px',
-     left: '50%',
-     transform: 'translateX(-50%)'
-   },
-   overlay: {
-     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-     display: 'flex',
-     alignItems: 'flex-end',
-     justifyContent: 'center'
-   }
- }}
->
+      isOpen={isModalOpen}
+      onRequestClose={closeModal}
+      className="modal"
+      overlayClassName="overlay"
+      style={{
+        content: {
+          bottom: '0',
+          top: 'auto',
+          borderRadius: '20px 20px 0 0',
+          padding: '20px',
+          position: 'fixed',
+          width: '100%',
+          maxWidth: '500px',
+          left: '50%',
+          transform: 'translateX(-50%)'
+        },
+      overlay: {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center'
+      }
+    }}
+    >
         <div className="modal-header">
-          <button className="close-btn" onClick={closeModal}> &times; </button>
-          <button className="save-btn" onClick={handleSave}> ✓ </button>
+          <img src={exitIcon} className="close-btn" onClick={closeModal}/> 
+          {/* 삭제 아이콘 추가 */}
+          <img 
+            src={trashIcon} 
+            alt="삭제" 
+            className="delete-icon"
+            onClick={() => {
+              if (editingIndex !== null) {
+                const dateKey = selectedDate.toDateString();
+                const eventToDelete = events[dateKey]?.[editingIndex];
+
+                if (eventToDelete) {
+                  setDeleteConfirm({ show: true, item: eventToDelete, isTodo: false });
+                  closeModal();
+                }
+              }
+            }}
+            />
+          <img src={checkIcon} className="save-btn" onClick={handleSave}/> 
         </div>
 
   <input
