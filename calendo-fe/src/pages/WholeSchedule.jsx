@@ -41,17 +41,96 @@ const WholeSchedule = () => {
 
 
   const [selectedColor, setSelectedColor] = useState("#FFCDD2"); // 기본 색상 설정
-  const [selectedType, setSelectedType] = useState("일정"); // 기본 일정 유형 설정
-  const [selectedRepeat, setSelectedRepeat] = useState("반복 없음"); // 기본 반복 옵션 설정
-
-
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [projects, setProjects] = useState(["나의 일정"]);
-  const [selectedProject, setSelectedProject] = useState("");
   const [nickname, setNickname] = useState("");
 
-  const [editingTodo, setEditingTodo] = useState(null);
-  const [editText, setEditText] = useState("");
+
+ 
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+
+  // ✅ `localStorage`에서 닉네임 불러오기
+  const storedNickname = localStorage.getItem("nickname") || "unknown";
+  const defaultProject = `${storedNickname}의 일정`;
+
+  // ✅ 프로젝트 목록 및 데이터 관리
+  const [projects, setProjects] = useState([defaultProject]);
+  const [selectedProject, setSelectedProject] = useState(defaultProject);
+  const [projectData, setProjectData] = useState({
+    [defaultProject]: { events: {}, todoLists: {} },
+  });
+
+  useEffect(() => {
+    setProjects((prev) => {
+      if (!prev.includes(defaultProject)) {
+        return [defaultProject, ...prev];
+      }
+      return prev;
+    });
+
+    setProjectData((prev) => {
+      if (!prev[defaultProject]) {
+        return {
+          ...prev,
+          [defaultProject]: { events: {}, todoLists: {} },
+        };
+      }
+      return prev;
+    });
+
+    setSelectedProject(defaultProject);
+  }, [defaultProject]);
+
+// ✅ 프로젝트 추가 기능
+const handleCreateProject = () => {
+  if (newProjectName.trim() !== "" && !projects.includes(newProjectName)) {
+    setProjects([...projects, newProjectName]);
+    setProjectData({
+      ...projectData,
+      [newProjectName]: { events: {}, todoLists: {}, color: "#FFCDD2" },
+    });
+    setSelectedProject(newProjectName);
+    closeProjectModal();
+  }
+};
+
+const closeProjectModal = () => {
+  setIsProjectModalOpen(false);
+  setNewProjectName("");
+};
+
+
+  // ✅ 선택된 프로젝트에 따라 해당 캘린더 데이터 표시
+  const currentEvents = selectedProject === defaultProject
+    ? Object.values(projectData).reduce((acc, project) => {
+        Object.keys(project.events || {}).forEach((date) => {
+          acc[date] = [...(acc[date] || []), ...project.events[date]];
+        });
+        return acc;
+      }, {})
+    : projectData[selectedProject]?.events || {};
+
+  const currentTodoLists = selectedProject === defaultProject
+    ? Object.values(projectData).reduce((acc, project) => {
+        Object.keys(project.todoLists || {}).forEach((date) => {
+          acc[date] = [...(acc[date] || []), ...project.todoLists[date]];
+        });
+        return acc;
+      }, {})
+    : projectData[selectedProject]?.todoLists || {};
+
+
+    // ✅ 드롭다운 토글
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  // ✅ 프로젝트 선택
+  const handleProjectChange = (project) => {
+    setSelectedProject(project);
+    setDropdownOpen(false);
+    setSelectedColor(projectData[project]?.color || "#FFCDD2");
+  };
 
 
   // 일정 선택 상태 추가
@@ -180,14 +259,6 @@ const updateColor = async (newColor) => {
     setNickname(`${storedNickname}의 일정`);
   }, []);
   
-  
-  // 프로젝트별 데이터 저장
-  const [projectData, setProjectData] = useState({
-    "내 일정": { events: {}, todoLists: {} }
-  });
-
-  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
 
   const [projectMembers, setProjectMembers] = useState({
     "내 일정": ["나", "수현"], // 기본 프로젝트의 팀원
@@ -197,10 +268,6 @@ const updateColor = async (newColor) => {
   const toggleMemberDropdown = () => {
     setIsMemberDropdownOpen(!isMemberDropdownOpen);
   };
-  
-  // 현재 선택된 프로젝트의 데이터를 불러옴
-  const currentEvents = projectData[selectedProject]?.events || {};
-  const currentTodoLists = projectData[selectedProject]?.todoLists || {};
 
   const handleAddMember = () => {
     const newMember = prompt("추가할 팀원 이름을 입력하세요:");
@@ -420,9 +487,11 @@ const deleteTodo = async (todoId) => {
 
 
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
+const openModal = () => {
+  setSelectedStartDate(selectedDate); // 선택한 날짜를 기본 시작 날짜로 설정
+  setSelectedEndDate(selectedDate); // 종료 날짜도 동일하게 설정
+  setIsModalOpen(true);
+};
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -453,10 +522,10 @@ const openProjectModal = () => {
   setIsProjectModalOpen(true);
 };
 
-const closeProjectModal = () => {
-  setIsProjectModalOpen(false);
-  setNewProjectName("");
-};
+// const closeProjectModal = () => {
+//   setIsProjectModalOpen(false);
+//   setNewProjectName("");
+// };
 
 // 이전 달로 이동
 const handlePrevMonth = () => {
@@ -476,35 +545,21 @@ const handleNextMonth = () => {
   });
 };
 
-// const handleCreateProject = () => {
-//   if (newProjectName.trim() !== "") {
-//     setProjects((prevProjects) =>
-//       prevProjects.includes("내 일정")
-//         ? [...prevProjects, newProjectName]
-//         : ["내 일정", newProjectName]
-//     );
+
+//  // 새 프로젝트 추가
+//  const handleCreateProject = () => {
+//   if (newProjectName.trim() !== "" && !projects.includes(newProjectName)) {
+//     setProjects([...projects, newProjectName]);
+//     setProjectData({
+//       ...projectData,
+//       [newProjectName]: { events: {}, todoLists: {} }
+//     });
 //     setSelectedProject(newProjectName);
 //     closeProjectModal();
 //   }
 // };
 
- // 새 프로젝트 추가
- const handleCreateProject = () => {
-  if (newProjectName.trim() !== "" && !projects.includes(newProjectName)) {
-    setProjects([...projects, newProjectName]);
-    setProjectData({
-      ...projectData,
-      [newProjectName]: { events: {}, todoLists: {} }
-    });
-    setSelectedProject(newProjectName);
-    closeProjectModal();
-  }
-};
 
-// 프로젝트 변경
-const handleProjectChange = (project) => {
-  setSelectedProject(project);
-};
 
 
 // const handleSave = () => {
@@ -761,7 +816,26 @@ const addEvent = async () => {
       </div>
     </div>
   )}
-    <div className="dropdown-container">
+  <div className="dropdown-container">
+    <button className="dropdown-toggle" onClick={toggleDropdown}>
+              {selectedProject} ▼
+            </button>
+            {dropdownOpen && (
+            <div className="dropdown-menu">
+              {projects.map((project, index) => (
+                <div
+                  key={index}
+                  className="dropdown-item"
+                  onClick={() => handleProjectChange(project)}
+                >
+                  {project}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+    {/* <div className="dropdown-container">
       <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
               {selectedProject} {nickname}▼
             </button>
@@ -781,7 +855,7 @@ const addEvent = async () => {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           
         {/* ✅ 캘린더 색상 선택 버튼 추가 */}
@@ -796,7 +870,7 @@ const addEvent = async () => {
         
         <div className="app-bar-right">
           <img src={alertIcon} className="icon" />
-          <img src={addProjectIcon} className="icon" onClick={openProjectModal} />
+          <img src={addProjectIcon} className="icon" onClick={() => setIsProjectModalOpen(true)} />
           <img src={timeIcon} className="icon" />
           <img src={profileIcon} className="icon" onClick={() => navigate("/mypage")} />
         
@@ -954,6 +1028,33 @@ const addEvent = async () => {
       }
     }}
     >
+      {/*새 프로젝트 추가 모달*/}
+    <Modal
+        isOpen={isProjectModalOpen}
+        onRequestClose={closeProjectModal}
+        className="modal"
+        overlayClassName="overlay"
+      >
+        <div className="modal-header">
+          <button className="close-btn" onClick={closeProjectModal}> &times; </button>
+          <button className="save-btn" onClick={handleCreateProject}> ✓ </button>
+        </div>
+        <input
+          type="text"
+          placeholder="새 프로젝트 이름"
+          value={newProjectName}
+          onChange={(e) => setNewProjectName(e.target.value)}
+          className="modal-input"
+        />
+      </Modal>
+      <button className="fab" onClick={() => setIsModalOpen(true)}>
+        <FaPlus />
+      </button> 
+
+
+
+
+
         <div className="modal-header">
           <img src={exitIcon} className="close-btn" onClick={closeModal}/> 
           {/* 삭제 아이콘 추가 */}
