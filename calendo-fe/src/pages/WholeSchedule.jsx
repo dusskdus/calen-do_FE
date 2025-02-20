@@ -87,7 +87,7 @@ const handleCreateProject = () => {
     setProjects([...projects, newProjectName]);
     setProjectData({
       ...projectData,
-      [newProjectName]: { events: {}, todoLists: {}, color: "#FFCDD2" },
+      [newProjectName]: { events: {}, todoLists: {}, color: "#FFCDD2" }, // 🔥 프로젝트 색상 추가
     });
     setSelectedProject(newProjectName);
     closeProjectModal();
@@ -129,9 +129,8 @@ const closeProjectModal = () => {
   const handleProjectChange = (project) => {
     setSelectedProject(project);
     setDropdownOpen(false);
-    setSelectedColor(projectData[project]?.color || "#FFCDD2");
+    setSelectedColor(projectData[project]?.color || "#FFCDD2"); // 🔥 선택한 프로젝트 색상 적용
   };
-
 
   // 일정 선택 상태 추가
   const [isDateTimePickerOpen, setIsDateTimePickerOpen] = useState(false);
@@ -209,9 +208,18 @@ const handleEditTodo = (todo, index) => {
   }, [userId]);
 
   // ✅ 색상 선택 이벤트
-const handleColorChange = async (e) => {
-  const newColor = e.target.value;
-  setSelectedColor(newColor);
+  const handleColorChange = async (e) => {
+    const newColor = e.target.value;
+    setSelectedColor(newColor);
+  
+    // 🔥 현재 선택된 프로젝트 색상 변경
+    setProjectData((prev) => ({
+      ...prev,
+      [selectedProject]: {
+        ...prev[selectedProject],
+        color: newColor,
+      },
+    }));
 
   if (!userId) return;
 
