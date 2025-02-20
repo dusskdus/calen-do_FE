@@ -100,15 +100,20 @@ const closeProjectModal = () => {
 };
 
 
-  // ✅ 선택된 프로젝트에 따라 해당 캘린더 데이터 표시
-  const currentEvents = selectedProject === defaultProject
-    ? Object.values(projectData).reduce((acc, project) => {
-        Object.keys(project.events || {}).forEach((date) => {
-          acc[date] = [...(acc[date] || []), ...project.events[date]];
-        });
-        return acc;
-      }, {})
-    : projectData[selectedProject]?.events || {};
+// ✅ 선택된 프로젝트의 일정만 보여주도록 변경
+// const currentEvents = selectedProject === defaultProject
+//   ? Object.values(projectData).reduce((acc, project) => { 
+//       Object.keys(project.events || {}).forEach((date) => {
+//         acc[date] = [...(acc[date] || []), ...project.events[date]];
+//       });
+//       return acc;
+//     }, {})
+//   : projectData[selectedProject]?.events || {};
+useEffect(() => {
+  setEvents(projectData[selectedProject]?.events || {});
+  setTodoLists(projectData[selectedProject]?.todoLists || {});
+}, [selectedProject, projectData]);
+
 
   const currentTodoLists = selectedProject === defaultProject
     ? Object.values(projectData).reduce((acc, project) => {
@@ -653,7 +658,7 @@ const handleNextMonth = () => {
 const handleSave = () => {
   let currentDate = new Date(selectedStartDate);
   const endDate = new Date(selectedEndDate);
-  let updatedEvents = { ...events };
+  let updatedEvents = { ...projectData[selectedProject]?.events };
   let updatedTodos = { ...todoLists };
 
   while (currentDate <= endDate) {
@@ -661,7 +666,7 @@ const handleSave = () => {
     const newItem = {
       title: newTitle,
       type: eventType,
-      color: selectedColor,
+      color: projectData[selectedProject]?.color || "#FFCDD2",
       time: selectedTime,
       repeat: repeatOption,
       alert: alertOption,
@@ -729,6 +734,14 @@ const handleSave = () => {
     // 다음 날짜로 이동
     currentDate.setDate(currentDate.getDate() + 1);
   }
+  // ✅ 프로젝트 데이터에 직접 저장
+  setProjectData((prev) => ({
+    ...prev,
+    [selectedProject]: {
+      ...prev[selectedProject],
+      events: updatedEvents,
+    },
+  }));
 
   closeModal();
 };
@@ -939,7 +952,8 @@ const addEvent = async () => {
           tileContent={({ date }) => (
             <div className="calendar-event-container">
               {(events[date.toDateString()] || []).slice(0, 2).map((event, idx) => (
-                <div key={idx} className="calendar-event" style={{backgroundColor: selectedColor}}>
+                <div key={idx} className="calendar-event" 
+                  style={{ backgroundColor: projectData[selectedProject]?.color || "#FFCDD2" }}> 
                   {event.title}
                 </div>
               ))}
