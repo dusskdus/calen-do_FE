@@ -1,296 +1,622 @@
-.whole-schedule {
-  /* App Bar */
-  .app-bar {
+/* App Bar */
+.app-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+}
+
+.app-bar-left {
+  display: flex;
+  align-items: center;
+}
+
+.app-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  margin-right: 8px;
+  color: #000;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* 팀원 목록 스타일 */
+.member-dropdown {
+  position: absolute;
+  top: 50px;
+  left: 10px;
+  background: #ffedd5;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.member-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #ffd6a5;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.member-item.invite {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.spaced-icon {
+  margin-left: 8px; /* 텍스트와 아이콘 사이 간격 조정 */
+}
+
+
+/* Project Dropdown */
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-toggle {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  background: #FFE5E5;
+  border-radius: 10px;
+  padding: 5px 0;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  z-index: 10;
+}
+
+.dropdown-item {
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: #FFC1C1;
+}
+
+
+/* Dropdown이 열린 후 보이는 옵션 리스트 */
+.dropdown option {
+  background: #EA6B6B; /* 🔴 옵션 배경색 */
+  color: white;
+  padding: 10px;
+}
+
+/* Hover 시 스타일 */
+.dropdown option:hover {
+  background: #ff8787; /* 🔴 밝은 빨간색 */
+}
+
+/* ✅ 캘린더 색상 선택 버튼 */
+.color-picker {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 4px;
+  outline: none;
+  appearance: none;
+  background: none;
+  padding: 0;
+
+}
+  
+
+  
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgb(241, 128, 128);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+  
+  /* 일정 및 To-do 리스트 */
+  .list-container {
+    padding: 16px;
+    background-color: #f9f9f9;
+  }
+  
+  .completed {
+    text-decoration: line-through;
+    color: grey;
+  }
+
+  .schedule-section,
+  .todo-section {
+    margin-bottom: 20px;
+  }
+
+  .h3{
+    font-size: 18px;
+  }
+
+/* 일정 목록이 화면 밖으로 벗어나지 않도록 조정 */
+.schedule-list {
+  max-height: 400px; /* ✅ 화면에 맞게 조절 */
+  overflow-y: auto; /* ✅ 세로 스크롤 적용 */
+  overflow-x: hidden; /* ✅ 가로 스크롤 방지 */
+  width: 100%;
+  box-sizing: border-box; /* ✅ 패딩 포함하여 크기 조정 */
+}
+
+/* 일정 항목 전체 스타일 */
+.schedule-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  width: 100%;
+  position: relative;
+  padding-left: 15px; /* 들여쓰기 효과 */
+  box-sizing: border-box; /* ✅ 가로 크기가 넘치지 않도록 설정 */
+}
+
+/* 시간 + 파란 점 */
+.schedule-time {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #A1A1AA; 
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* 파란 점 (시간 옆에 위치) */
+.event-dot {
+  font-size: 10px;
+  color: #3B82F6;
+  margin-right: 5px;
+}
+
+/* 일정 제목 박스 */
+.event-box {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  position: relative;
+  box-sizing: border-box; /* ✅ 가로 크기 고정 */
+  max-width: 100%; /* ✅ 부모 요소를 넘지 않도록 제한 */
+}
+
+/* 왼쪽 진한 파란색 바 */
+.event-bar {
+  width: 8px;
+  height: 100%; /* ✅ 높이 문제 해결 */
+  min-height: 40px; /* ✅ 일정이 짧을 경우에도 색상 표시 */
+  background-color: #18A0FB; /* ✅ 진한 파란색 적용 */
+}
+
+/* 일정 제목 */
+.event-title {
+  width: 100%;
+  font-size: 16px;
+  color: black;
+  padding: 10px;
+  flex-grow: 1;
+  background-color: #bbdefb; /* ✅ 연한 파란색 적용 */
+  overflow-wrap: break-word; /* ✅ 긴 단어가 넘칠 경우 자동 줄바꿈 */
+  word-wrap: break-word;
+  
+}
+
+
+/* To-do 리스트 스타일 */
+.todo-list {
+  background-color: #fff;
+  padding: 0px;
+  margin-top: 10px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.todo-item input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.todo-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #3191f7; /* 체크박스 색상 변경 */
+  cursor: pointer;
+}
+
+  
+/* Modal */
+.modal {
+  background: #FFE5E5;
+  padding: 20px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 420px;
+  margin: auto;
+  position: relative;
+  box-sizing: border-box;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.overlay {
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+  
+.delete-modal {
+  width: 80%;
+  max-width: 320px;
+  background: white;
+  border-radius: 12px;
+  padding: 30px 20px; /* 🔺 기존 20px에서 30px로 증가 */
+  min-height: 150px; /* 🔺 세로 길이 조정 */
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* 🔺 버튼과 텍스트 사이 간격 유지 */
+}
+
+.delete-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 20px;
+}
+
+.delete-buttons {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 10px; /* 🔺 버튼과 텍스트 사이 간격 추가 */
+  padding-top : 20px;
+}
+
+.delete-btn, .cancel-btn {
+  width: 90px;
+  height: 30px;
+  border-radius: 20px;
+  border: 1px solid #EEEEEE;
+  background: #EEEEEE;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.delete-btn:hover, .cancel-btn:hover {
+  background: #f0f0f0;
+}
+
+/* 버튼 크기 조정 */
+.close-btn,
+.save-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #d9534f;
+}
+
+/* 입력 필드 크기 조정 */
+.modal-input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background: white;
+    box-sizing: border-box;
+}
+  
+  .selection-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background-color: #ffffff;
-    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
   }
-
-  .app-bar-left {
-    display: flex;
-    align-items: center;
-  }
-
-  .app-bar-right {
+  
+  .selection-row label {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-
-  .icon {
-    margin-right: 8px;
-    color: #000;
-    font-size: 22px;
-    cursor: pointer;
-  }
-
-  /* 팀원 목록 스타일 */
-  .member-dropdown {
-    position: absolute;
-    top: 50px;
-    left: 10px;
-    background: #ffedd5;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-  }
-
-  .member-item {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #ffd6a5;
-  }
-
-  .member-item:last-child {
-    border-bottom: none;
-  }
-
-  .member-item.invite {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .spaced-icon {
-    margin-left: 8px;
-  }
-
-  /* Project Dropdown */
-  .dropdown-container {
-    position: relative;
-  }
-
-  .dropdown-toggle {
-    background: transparent;
-    border: none;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    padding: 5px 10px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .dropdown-menu {
-    position: absolute;
-    top: 30px;
-    left: 0;
-    background: #ffe5e5;
-    border-radius: 10px;
-    padding: 5px 0;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    min-width: 150px;
-    z-index: 10;
-  }
-
-  .dropdown-item {
-    padding: 10px 15px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .dropdown-item:hover {
-    background: #ffc1c1;
-  }
-
-  /* Dropdown 옵션 리스트 */
-  .dropdown option {
-    background: #ea6b6b;
-    color: white;
-    padding: 10px;
-  }
-
-  .dropdown option:hover {
-    background: #ff8787;
-  }
-
-  /* ✅ 캘린더 색상 선택 버튼 */
-  .color-picker {
-    width: 30px;
-    height: 30px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-left: 4px;
-    outline: none;
-    appearance: none;
-    background: none;
-    padding: 0;
-  }
-
-  /* Floating Action Button */
-  .fab {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: rgb(241, 128, 128);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-  }
-
-  /* 일정 목록 스타일 */
-  .schedule-list {
-    max-height: 400px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .schedule-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  
+  .date-time {
     margin-bottom: 10px;
-    width: 100%;
-    position: relative;
-    padding-left: 15px;
-    box-sizing: border-box;
   }
-
-  .schedule-time {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: #a1a1aa;
-    font-weight: bold;
+  
+  .date-time strong {
+    display: block;
     margin-bottom: 5px;
   }
-
-  .event-dot {
-    font-size: 10px;
-    color: #3b82f6;
-    margin-right: 5px;
-  }
-
-  /* 일정 제목 박스 */
-  .event-box {
-    display: flex;
-    align-items: center;
+  
+  .modal select, .modal input[type="text"] {
     width: 100%;
     padding: 10px;
-    position: relative;
-    box-sizing: border-box;
-    max-width: 100%;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background: white;
   }
 
-  .event-bar {
-    width: 8px;
-    height: 100%;
-    min-height: 40px;
-    background-color: #18a0fb;
-  }
+/* 캘린더 컨테이너 */
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
 
-  .event-title {
-    width: 100%;
-    font-size: 16px;
-    color: black;
-    padding: 10px;
-    flex-grow: 1;
-    background-color: #bbdefb;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  }
+/* 상단 날짜 표시 */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  gap: 10px;
+}
 
-  /* 반응형 디자인 */
-  @media (max-width: 768px) {
-    .icon {
+/* 네비게이션 버튼 */
+.nav-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: black;
+}
+
+/* 요일 (Sun ~ Sat) 정렬 */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  padding: 8px 0;
+  color: #a8a6a6;
+}
+
+.weekdays span {
+  padding: 5px 0;
+}
+
+.react-calendar__navigation__label{
+  justify-content: center;
+  font-size: 22px;
+  font-weight: bold;
+
+}
+
+/* 요일 스타일 Sun Mon Tue 형태 */
+.react-calendar__month-view__weekdays {
+  display: flex;
+  justify-content: space-around;
+  text-transform: uppercase;
+  font-size: 12px;
+  padding: 10px 0;
+  color: #b3b0b0;
+}
+
+
+/* 날짜 칸 크기 조정 */
+.react-calendar__tile {
+  position: relative;
+  padding: 5px;
+  text-align: center;
+  font-size: 12px;
+  height: 80px; /* 날짜 칸 높이 설정 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* 날짜는 위쪽 정렬 */
+  align-items: center;
+}
+
+/* 날짜 숫자는 항상 상단에 유지 */
+.react-calendar__tile abbr {
+  display: block;
+  font-size: 10px;
+  margin-bottom: 3px;
+}
+
+/* 일정이 표시될 공간 확보 */
+.calendar-event-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 30px; /* 일정이 없더라도 공간 확보 */
+}
+
+/* 일정 기본 스타일 */
+.calendar-event {
+  width: 100%;
+  font-size: 8px;
+  background-color: rgba(255, 200, 0, 0.2);
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin: 2px 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: black;
+}
+
+/* 현재 선택된 날짜 스타일 */
+.react-calendar__tile--active {
+  background: #bbbbbb !important;
+  
+}
+
+/* 오늘 날짜 스타일 (검정색 원 추가) */
+.react-calendar__tile--now {
+  background: none; /* 기존 배경 제거 */
+  position: relative;
+}
+
+.react-calendar__tile--now abbr {
+  color: white !important; /* 날짜 숫자 흰색 */
+  background: black; /* 검정 원 */
+  border-radius: 50%;
+  width: 24px; /* 크기 조정 */
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 일정 있는 날짜 배경 강조 */
+.react-calendar__tile--hasActive {
+  background: #76baff;
+}
+ 
+
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+ 
+
+  .icon {
       font-size: 18px;
-    }
+  }
 
-    .fab {
+  .fab {
       width: 48px;
       height: 48px;
       font-size: 20px;
       bottom: 16px;
       right: 16px;
-    }
+  }
 
-    .schedule-item {
+    .schedule-item{
       flex-direction: column;
       align-items: flex-start;
       padding: 8px;
     }
-
+  
     .modal {
       width: 95%;
       padding: 15px;
-    }
-
+  }
+  
+   
+  
     .selection-row {
       flex-direction: column;
     }
   }
-
+  
   @media (max-width: 480px) {
     .icon {
       font-size: 16px;
     }
-
+  
     .calendar-event {
       font-size: 8px;
     }
-
+  
     .fab {
       width: 40px;
       height: 40px;
       font-size: 18px;
     }
-
+  
     .modal {
       padding: 10px;
     }
-
+  
     .modal-input,
-    .modal select,
+    .modal select, 
     .modal input[type="text"] {
       padding: 8px;
     }
   }
-
-  @media (max-width: 1024px) {
-    .calendar-container {
-      min-width: 700px;
-    }
-
-    .schedule-content {
-      flex-direction: column;
-    }
+  
+ /* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .calendar-container {
+    min-width: 700px;
   }
 
-  @media (max-width: 768px) {
-    .calendar-container {
-      min-width: 100%;
-    }
+  .schedule-content {
+    flex-direction: column;
+  }
+}
 
-    .schedule-content {
-      min-width: 100%;
-    }
+@media (max-width: 768px) {
+  .calendar-container {
+    min-width: 100%;
   }
 
-  @media (max-width: 480px) {
-    .schedule-content {
-      flex-direction: column;
-    }
+  .schedule-content {
+    min-width: 100%;
+  }
+}
 
-    .schedule-list {
-      max-height: 300px;
-    }
+@media (max-width: 480px) {
+  .schedule-content {
+    flex-direction: column;
+  }
 
-    .event-title {
-      font-size: 14px;
-    }
+  .schedule-list {
+    max-height: 300px;
+  }
+
+  .event-title {
+    font-size: 14px;
   }
 }
