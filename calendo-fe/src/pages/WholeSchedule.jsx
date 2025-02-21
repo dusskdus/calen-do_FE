@@ -110,9 +110,12 @@ const closeProjectModal = () => {
 //     }, {})
 //   : projectData[selectedProject]?.events || {};
 useEffect(() => {
-  setEvents(projectData[selectedProject]?.events || {});
-  setTodoLists(projectData[selectedProject]?.todoLists || {});
+  if (projectData[selectedProject]) {
+    setEvents(projectData[selectedProject]?.events || {});
+    setTodoLists(projectData[selectedProject]?.todoLists || {}); // ✅ To-do 리스트를 프로젝트별로 반영
+  }
 }, [selectedProject, projectData]);
+
 
 
   const currentTodoLists = selectedProject === defaultProject
@@ -437,6 +440,19 @@ const addTodo = async () => {
     if (!response.ok) throw new Error("투두 추가 실패");
 
     const savedTodo = await response.json(); // 서버에서 저장된 투두 반환
+
+    // ✅ 현재 프로젝트 데이터 업데이트
+    setProjectData((prev) => ({
+      ...prev,
+      [selectedProject]: {
+        ...prev[selectedProject],
+        todoLists: {
+          ...prev[selectedProject]?.todoLists,
+          [dateKey]: [...(prev[selectedProject]?.todoLists[dateKey] || []), savedTodo],
+        },
+      },
+    }));
+
     setTodoLists((prev) => ({
       ...prev,
       [dateKey]: [...(prev[dateKey] || []), savedTodo],
@@ -715,21 +731,37 @@ const handleSave = () => {
         }
       }
       setEvents(updatedEvents);
-    } else if (eventType === "To-do") {
-      // ✅ To-do 추가 및 수정 로직
-      if (!updatedTodos[dateKey]) {
-        updatedTodos[dateKey] = []; // ✅ 해당 날짜의 To-do 배열이 없으면 초기화
-      }
-
-      if (editingIndex !== null) {
-        updatedTodos[dateKey][editingIndex] = newItem; // ✅ 기존 To-do 수정
-        setEditingIndex(null);
-      } else {
-        updatedTodos[dateKey].push(newItem); // ✅ 새 To-do 추가
-      }
-
-      setTodoLists(updatedTodos);
+    }else if (eventType === "To-do") {
+    // ✅ To-do 추가 및 수정 로직
+    // ✅ To-do 추가 및 수정
+    if (!updatedTodos[dateKey]) {
+      updatedTodos[dateKey] = [];
     }
+
+    if (editingIndex !== null) {
+      // ✅ 수정 모드: 기존 항목을 수정 (새로 추가하지 않음)
+      updatedTodos[dateKey] = updatedTodos[dateKey].map((todo, idx) =>
+        idx === editingIndex ? newItem : todo
+      );
+      setEditingIndex(null);
+    } else {
+      // ✅ 새 To-do 추가
+      updatedTodos[dateKey].push(newItem);
+    }
+
+    setTodoLists(updatedTodos);
+     // ✅ 프로젝트 데이터에도 동기화
+     setProjectData((prev) => ({
+      ...prev,
+      [selectedProject]: {
+        ...prev[selectedProject],
+        todoLists: {
+          ...prev[selectedProject]?.todoLists,
+          [dateKey]: updatedTodos[dateKey],
+        },
+      },
+    }));
+  }
 
     // 다음 날짜로 이동
     currentDate.setDate(currentDate.getDate() + 1);
@@ -740,8 +772,10 @@ const handleSave = () => {
     [selectedProject]: {
       ...prev[selectedProject],
       events: updatedEvents,
+      
     },
   }));
+  
 
   closeModal();
 };
