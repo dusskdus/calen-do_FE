@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import * as S from "./styled";
 import dayjs from 'dayjs';
@@ -21,7 +20,7 @@ function CreatePlan() {
     };
 
     return (
-        <S.Container>
+        <S.Container className="create-plan">
             <S.Header>
                 <S.BackButton onClick={()=>navigate(-1)}>
                 <img src={backIcon} alt="Back" width="32" height="32" />

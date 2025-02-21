@@ -8,7 +8,10 @@ import { InvitePage } from "./pages/invite/InvitePage";
 import CreatePlan from "./pages/create/createPlan";
 import CreateTime from "./pages/create/createTime";
 import CheckTime from "./pages/check/checkTime";
+
 import MyPage from "./pages/mypage/MyPage";
+import Alert from "./pages/alert/alertPage";
+
 
 
 const Router = () => {
@@ -24,6 +27,7 @@ const Router = () => {
                     <Route path="/time" element={<CreateTime />} />
                     <Route path="/check" element={<CheckTime />} />
                     <Route path="/mypage" element={<MyPage />} />
+                    <Route path="/alert" element={<Alert />} />
                 </Routes>
             </div>
         </BrowserRouter>
