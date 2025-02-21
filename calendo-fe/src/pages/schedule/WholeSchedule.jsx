@@ -4,18 +4,16 @@ import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle, FaTimes, FaClock, FaFileAlt } from "react-icons/fa"; 
-import "../styles/WholeSchedule.css";
-import trashIcon from "../assets/images/trash.svg";
-import addMemberIcon from "../assets/images/addmember.svg";
-import addProjectIcon from "../assets/images/addproject.svg";
-import alertIcon from "../assets/images/alert.svg";
-import timeIcon from "../assets/images/time.svg";
-import profileIcon from "../assets/images/profile.svg";
-import checkIcon from "../assets/images/check.svg";
-import googleIcon from "../assets/images/google.svg";
-import teammemberIcon from "../assets/images/teammember.svg";
-import exitIcon from "../assets/images/x.svg";
-import downarrowIcon from "../assets/images/downarrow.svg"
+import "../schedule/WholeSchedule.css";
+import trashIcon from "../../assets/images/trash.svg";
+import addMemberIcon from "../../assets/images/addmember.svg";
+import addProjectIcon from "../../assets/images/addproject.svg";
+import alertIcon from "../../assets/images/alert.svg";
+import timeIcon from "../../assets/images/time.svg";
+import profileIcon from "../../assets/images/profile.svg";
+import checkIcon from "../../assets/images/check.svg";
+import teammemberIcon from "../../assets/images/teammember.svg";
+import exitIcon from "../../assets/images/x.svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.module.css";
 
@@ -109,12 +107,51 @@ const closeProjectModal = () => {
 //       return acc;
 //     }, {})
 //   : projectData[selectedProject]?.events || {};
+
+///
+// useEffect(() => {
+//   if (projectData[selectedProject]) {
+//     setEvents(projectData[selectedProject]?.events || {});
+//     setTodoLists(projectData[selectedProject]?.todoLists || {}); // ✅ 삭제 반영된 상태 유지
+//   }
+// }, [selectedProject, projectData]);
+
 useEffect(() => {
-  if (projectData[selectedProject]) {
+  if (selectedProject === defaultProject) {
+    // ✅ 메인 프로젝트에서는 모든 프로젝트 일정 합치기
+    let mergedEvents = {};
+    let mergedTodos = {};
+
+    Object.keys(projectData).forEach((project) => {
+      const projectEvents = projectData[project]?.events || {};
+      const projectTodos = projectData[project]?.todoLists || {};
+
+      Object.keys(projectEvents).forEach((dateKey) => {
+        if (!mergedEvents[dateKey]) mergedEvents[dateKey] = [];
+        mergedEvents[dateKey] = [
+          ...mergedEvents[dateKey],
+          ...projectEvents[dateKey].map((event) => ({
+            ...event,
+            color: projectData[project]?.color || "#FFCDD2", // 🔥 해당 프로젝트 색상 적용
+          })),
+        ];
+      });
+
+      Object.keys(projectTodos).forEach((dateKey) => {
+        if (!mergedTodos[dateKey]) mergedTodos[dateKey] = [];
+        mergedTodos[dateKey] = [...mergedTodos[dateKey], ...projectTodos[dateKey]];
+      });
+    });
+
+    setEvents(mergedEvents);
+    setTodoLists(mergedTodos);
+  } else {
+    // ✅ 선택한 프로젝트의 일정만 표시
     setEvents(projectData[selectedProject]?.events || {});
-    setTodoLists(projectData[selectedProject]?.todoLists || {}); // ✅ To-do 리스트를 프로젝트별로 반영
+    setTodoLists(projectData[selectedProject]?.todoLists || {});
   }
 }, [selectedProject, projectData]);
+
 
 
 
@@ -491,6 +528,7 @@ const updateTodo = async (todoId, updatedTodo) => {
 };
 // 📌 To-do 삭제 (PUT 요청)
 const deleteTodo = async (todoId) => {
+  const dateKey = selectedDate.toDateString();
   try {
     const response = await fetch(`/api/users/todo/${todoId}`, {
       method: "PUT",
@@ -500,12 +538,30 @@ const deleteTodo = async (todoId) => {
 
     if (!response.ok) throw new Error("투두 삭제 실패");
 
+    setProjectData((prev) => {
+      const updatedProjectData = { ...prev };
+      if (updatedProjectData[selectedProject]?.todoLists) {
+        updatedProjectData[selectedProject].todoLists[dateKey] =
+          updatedProjectData[selectedProject].todoLists[dateKey].filter((todo) => todo.id !== todoId);
+
+        // ✅ 삭제 후 데이터가 비어 있으면 해당 날짜 키 삭제
+        if (updatedProjectData[selectedProject].todoLists[dateKey].length === 0) {
+          delete updatedProjectData[selectedProject].todoLists[dateKey];
+        }
+      }
+      return updatedProjectData;
+    });
+
     setTodoLists((prev) => {
-      const dateKey = selectedDate.toDateString();
-      return {
-        ...prev,
-        [dateKey]: prev[dateKey].filter((item) => item.id !== todoId),
-      };
+      const updatedTodos = { ...prev };
+      if (updatedTodos[dateKey]) {
+        updatedTodos[dateKey] = updatedTodos[dateKey].filter((todo) => todo.id !== todoId);
+      }
+      // ✅ 삭제 후 해당 날짜의 할 일이 없다면 날짜 키 삭제
+      if (updatedTodos[dateKey].length === 0) {
+        delete updatedTodos[dateKey];
+      }
+      return updatedTodos;
     });
 
     setDeleteConfirm({ show: false, item: null, isTodo: false });
@@ -983,16 +1039,34 @@ const addEvent = async () => {
           formatShortWeekday={(locale, date) =>
             date.toLocaleDateString("en-US", { weekday: "short" }) // ✅ Mon, Tue, Wed 형태로 변경
           }
-          tileContent={({ date }) => (
-            <div className="calendar-event-container">
-              {(events[date.toDateString()] || []).slice(0, 2).map((event, idx) => (
-                <div key={idx} className="calendar-event" 
-                  style={{ backgroundColor: projectData[selectedProject]?.color || "#FFCDD2" }}> 
-                  {event.title}
-                </div>
-              ))}
-            </div>
-          )}
+          // tileContent={({ date }) => (
+            
+          //   <div className="calendar-event-container">
+          //     {(events[date.toDateString()] || []).slice(0, 2).map((event, idx) => (
+          //       <div key={idx} className="calendar-event" 
+          //         style={{ backgroundColor: projectData[selectedProject]?.color || "#FFCDD2" }}> 
+          //         {event.title}
+          //       </div>
+          //     ))}
+          //   </div>
+          // )
+          tileContent={({ date }) => {
+            const dateKey = date.toDateString();
+            const dayEvents = events[dateKey] || [];
+          
+            return (
+              <div className="calendar-event-container">
+                {dayEvents.slice(0, 2).map((event, idx) => (
+                  <div key={idx} className="calendar-event"
+                    style={{ backgroundColor: event.color }}> {/* ✅ 프로젝트별 색상 적용 */}
+                    {event.title}
+                  </div>
+                ))}
+              </div>
+            );
+
+
+        }}
         />
       </div>
     </div>
