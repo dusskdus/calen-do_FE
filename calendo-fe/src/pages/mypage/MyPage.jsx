@@ -1,21 +1,21 @@
 import React, { useState, useEffect }  from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/MyPage.css";
-import bigprofileIcon from "../assets/images/bigprofile.svg"; // 기본 프로필 아이콘
-import { FaArrowLeft } from "react-icons/fa"; // 뒤로 가기 아이콘
-import backIcon from "../assets/images/backicon.svg";
+import "../mypage/MyPage.css";
+import bigprofileIcon from "../../assets/images/bigprofile.svg"; // 기본 프로필 아이콘
+import backIcon from "../../assets/images/backicon.svg";
 
 const MyPage = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState({ email: "", nickname: "" });
+  const [user, setUser] = useState({ email: "" });
   const userId = localStorage.getItem("userId"); // ✅ 저장된 사용자 ID 가져오기
+
 
   useEffect(() => {
     if (!userId) return;
-
-    // ✅ 사용자 정보 조회 (POST)
-    fetch(`/api/users/${userId}`, {
-      method: "POST",
+  
+    // ✅ 사용자 정보 조회 (GET 요청)
+    fetch(`/api/users/me`, {
+      method: "GET", // 🔥 POST → GET 변경
       headers: { "Content-Type": "application/json" },
     })
       .then(response => response.json())
@@ -24,7 +24,8 @@ const MyPage = () => {
   }, [userId]);
 
   // ✅ 이메일에서 닉네임 추출 (@ 앞부분)
-  const nickname = user?.email?.split("@")[0] || "unknown";
+const nickname = user.email ? user.email.split("@")[0] : "unknown";
+
 
   return (
     <div className="mypage-container">
@@ -46,12 +47,12 @@ const MyPage = () => {
 
         <div className="info-box">
           <label className="info-label">닉네임 :</label>
-          <input type="text" value={user.nickname} readOnly className="info-input" />
+          <input type="text" value={nickname} readOnly className="info-input" />
         </div>
 
         <div className="info-box">
           <label className="info-label">이메일 :</label>
-          <input type="text" value={user.email} readOnly className="info-input" />
+          <input type="text" value={user.email || "unknown@gmail.com"} readOnly className="info-input" />
         </div>
       </div>
     </div>

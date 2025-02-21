@@ -4,18 +4,16 @@ import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle, FaTimes, FaClock, FaFileAlt } from "react-icons/fa"; 
-import "../styles/WholeSchedule.css";
-import trashIcon from "../assets/images/trash.svg";
-import addMemberIcon from "../assets/images/addmember.svg";
-import addProjectIcon from "../assets/images/addproject.svg";
-import alertIcon from "../assets/images/alert.svg";
-import timeIcon from "../assets/images/time.svg";
-import profileIcon from "../assets/images/profile.svg";
-import checkIcon from "../assets/images/check.svg";
-import googleIcon from "../assets/images/google.svg";
-import teammemberIcon from "../assets/images/teammember.svg";
-import exitIcon from "../assets/images/x.svg";
-import downarrowIcon from "../assets/images/downarrow.svg"
+import "../schedule/WholeSchedule.css";
+import trashIcon from "../../assets/images/trash.svg";
+import addMemberIcon from "../../assets/images/addmember.svg";
+import addProjectIcon from "../../assets/images/addproject.svg";
+import alertIcon from "../../assets/images/alert.svg";
+import timeIcon from "../../assets/images/time.svg";
+import profileIcon from "../../assets/images/profile.svg";
+import checkIcon from "../../assets/images/check.svg";
+import teammemberIcon from "../../assets/images/teammember.svg";
+import exitIcon from "../../assets/images/x.svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.module.css";
 
@@ -41,18 +39,143 @@ const WholeSchedule = () => {
 
 
   const [selectedColor, setSelectedColor] = useState("#FFCDD2"); // 기본 색상 설정
-  const [selectedType, setSelectedType] = useState("일정"); // 기본 일정 유형 설정
-  const [selectedRepeat, setSelectedRepeat] = useState("반복 없음"); // 기본 반복 옵션 설정
-
-
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [projects, setProjects] = useState(["나의 일정"]);
-  const [selectedProject, setSelectedProject] = useState("");
   const [nickname, setNickname] = useState("");
 
-  const [editingTodo, setEditingTodo] = useState(null);
-  const [editText, setEditText] = useState("");
 
+ 
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+
+  // ✅ `localStorage`에서 닉네임 불러오기
+  const storedNickname = localStorage.getItem("nickname") || "unknown";
+  const defaultProject = `${storedNickname}의 일정`;
+
+  // ✅ 프로젝트 목록 및 데이터 관리
+  const [projects, setProjects] = useState([defaultProject]);
+  const [selectedProject, setSelectedProject] = useState(defaultProject);
+  const [projectData, setProjectData] = useState({
+    [defaultProject]: { events: {}, todoLists: {} },
+  });
+
+  useEffect(() => {
+    setProjects((prev) => {
+      if (!prev.includes(defaultProject)) {
+        return [defaultProject, ...prev];
+      }
+      return prev;
+    });
+
+    setProjectData((prev) => {
+      if (!prev[defaultProject]) {
+        return {
+          ...prev,
+          [defaultProject]: { events: {}, todoLists: {} },
+        };
+      }
+      return prev;
+    });
+
+    setSelectedProject(defaultProject);
+  }, [defaultProject]);
+
+// ✅ 프로젝트 추가 기능
+const handleCreateProject = () => {
+  if (newProjectName.trim() !== "" && !projects.includes(newProjectName)) {
+    setProjects([...projects, newProjectName]);
+    setProjectData({
+      ...projectData,
+      [newProjectName]: { events: {}, todoLists: {}, color: "#FFCDD2" }, // 🔥 프로젝트 색상 추가
+    });
+    setSelectedProject(newProjectName);
+    closeProjectModal();
+  }
+};
+
+const closeProjectModal = () => {
+  setIsProjectModalOpen(false);
+  setNewProjectName("");
+};
+
+
+// ✅ 선택된 프로젝트의 일정만 보여주도록 변경
+// const currentEvents = selectedProject === defaultProject
+//   ? Object.values(projectData).reduce((acc, project) => { 
+//       Object.keys(project.events || {}).forEach((date) => {
+//         acc[date] = [...(acc[date] || []), ...project.events[date]];
+//       });
+//       return acc;
+//     }, {})
+//   : projectData[selectedProject]?.events || {};
+
+///
+// useEffect(() => {
+//   if (projectData[selectedProject]) {
+//     setEvents(projectData[selectedProject]?.events || {});
+//     setTodoLists(projectData[selectedProject]?.todoLists || {}); // ✅ 삭제 반영된 상태 유지
+//   }
+// }, [selectedProject, projectData]);
+
+useEffect(() => {
+  if (selectedProject === defaultProject) {
+    // ✅ 메인 프로젝트에서는 모든 프로젝트 일정 합치기
+    let mergedEvents = {};
+    let mergedTodos = {};
+
+    Object.keys(projectData).forEach((project) => {
+      const projectEvents = projectData[project]?.events || {};
+      const projectTodos = projectData[project]?.todoLists || {};
+
+      Object.keys(projectEvents).forEach((dateKey) => {
+        if (!mergedEvents[dateKey]) mergedEvents[dateKey] = [];
+        mergedEvents[dateKey] = [
+          ...mergedEvents[dateKey],
+          ...projectEvents[dateKey].map((event) => ({
+            ...event,
+            color: projectData[project]?.color || "#FFCDD2", // 🔥 해당 프로젝트 색상 적용
+          })),
+        ];
+      });
+
+      Object.keys(projectTodos).forEach((dateKey) => {
+        if (!mergedTodos[dateKey]) mergedTodos[dateKey] = [];
+        mergedTodos[dateKey] = [...mergedTodos[dateKey], ...projectTodos[dateKey]];
+      });
+    });
+
+    setEvents(mergedEvents);
+    setTodoLists(mergedTodos);
+  } else {
+    // ✅ 선택한 프로젝트의 일정만 표시
+    setEvents(projectData[selectedProject]?.events || {});
+    setTodoLists(projectData[selectedProject]?.todoLists || {});
+  }
+}, [selectedProject, projectData]);
+
+
+
+
+  const currentTodoLists = selectedProject === defaultProject
+    ? Object.values(projectData).reduce((acc, project) => {
+        Object.keys(project.todoLists || {}).forEach((date) => {
+          acc[date] = [...(acc[date] || []), ...project.todoLists[date]];
+        });
+        return acc;
+      }, {})
+    : projectData[selectedProject]?.todoLists || {};
+
+
+    // ✅ 드롭다운 토글
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  // ✅ 프로젝트 선택
+  const handleProjectChange = (project) => {
+    setSelectedProject(project);
+    setDropdownOpen(false);
+    setSelectedColor(projectData[project]?.color || "#FFCDD2"); // 🔥 선택한 프로젝트 색상 적용
+  };
 
   // 일정 선택 상태 추가
   const [isDateTimePickerOpen, setIsDateTimePickerOpen] = useState(false);
@@ -130,9 +253,18 @@ const handleEditTodo = (todo, index) => {
   }, [userId]);
 
   // ✅ 색상 선택 이벤트
-const handleColorChange = async (e) => {
-  const newColor = e.target.value;
-  setSelectedColor(newColor);
+  const handleColorChange = async (e) => {
+    const newColor = e.target.value;
+    setSelectedColor(newColor);
+  
+    // 🔥 현재 선택된 프로젝트 색상 변경
+    setProjectData((prev) => ({
+      ...prev,
+      [selectedProject]: {
+        ...prev[selectedProject],
+        color: newColor,
+      },
+    }));
 
   if (!userId) return;
 
@@ -180,14 +312,6 @@ const updateColor = async (newColor) => {
     setNickname(`${storedNickname}의 일정`);
   }, []);
   
-  
-  // 프로젝트별 데이터 저장
-  const [projectData, setProjectData] = useState({
-    "내 일정": { events: {}, todoLists: {} }
-  });
-
-  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
 
   const [projectMembers, setProjectMembers] = useState({
     "내 일정": ["나", "수현"], // 기본 프로젝트의 팀원
@@ -197,10 +321,6 @@ const updateColor = async (newColor) => {
   const toggleMemberDropdown = () => {
     setIsMemberDropdownOpen(!isMemberDropdownOpen);
   };
-  
-  // 현재 선택된 프로젝트의 데이터를 불러옴
-  const currentEvents = projectData[selectedProject]?.events || {};
-  const currentTodoLists = projectData[selectedProject]?.todoLists || {};
 
   const handleAddMember = () => {
     const newMember = prompt("추가할 팀원 이름을 입력하세요:");
@@ -357,6 +477,19 @@ const addTodo = async () => {
     if (!response.ok) throw new Error("투두 추가 실패");
 
     const savedTodo = await response.json(); // 서버에서 저장된 투두 반환
+
+    // ✅ 현재 프로젝트 데이터 업데이트
+    setProjectData((prev) => ({
+      ...prev,
+      [selectedProject]: {
+        ...prev[selectedProject],
+        todoLists: {
+          ...prev[selectedProject]?.todoLists,
+          [dateKey]: [...(prev[selectedProject]?.todoLists[dateKey] || []), savedTodo],
+        },
+      },
+    }));
+
     setTodoLists((prev) => ({
       ...prev,
       [dateKey]: [...(prev[dateKey] || []), savedTodo],
@@ -395,6 +528,7 @@ const updateTodo = async (todoId, updatedTodo) => {
 };
 // 📌 To-do 삭제 (PUT 요청)
 const deleteTodo = async (todoId) => {
+  const dateKey = selectedDate.toDateString();
   try {
     const response = await fetch(`/api/users/todo/${todoId}`, {
       method: "PUT",
@@ -404,12 +538,30 @@ const deleteTodo = async (todoId) => {
 
     if (!response.ok) throw new Error("투두 삭제 실패");
 
+    setProjectData((prev) => {
+      const updatedProjectData = { ...prev };
+      if (updatedProjectData[selectedProject]?.todoLists) {
+        updatedProjectData[selectedProject].todoLists[dateKey] =
+          updatedProjectData[selectedProject].todoLists[dateKey].filter((todo) => todo.id !== todoId);
+
+        // ✅ 삭제 후 데이터가 비어 있으면 해당 날짜 키 삭제
+        if (updatedProjectData[selectedProject].todoLists[dateKey].length === 0) {
+          delete updatedProjectData[selectedProject].todoLists[dateKey];
+        }
+      }
+      return updatedProjectData;
+    });
+
     setTodoLists((prev) => {
-      const dateKey = selectedDate.toDateString();
-      return {
-        ...prev,
-        [dateKey]: prev[dateKey].filter((item) => item.id !== todoId),
-      };
+      const updatedTodos = { ...prev };
+      if (updatedTodos[dateKey]) {
+        updatedTodos[dateKey] = updatedTodos[dateKey].filter((todo) => todo.id !== todoId);
+      }
+      // ✅ 삭제 후 해당 날짜의 할 일이 없다면 날짜 키 삭제
+      if (updatedTodos[dateKey].length === 0) {
+        delete updatedTodos[dateKey];
+      }
+      return updatedTodos;
     });
 
     setDeleteConfirm({ show: false, item: null, isTodo: false });
@@ -420,9 +572,11 @@ const deleteTodo = async (todoId) => {
 
 
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
+const openModal = () => {
+  setSelectedStartDate(selectedDate); // 선택한 날짜를 기본 시작 날짜로 설정
+  setSelectedEndDate(selectedDate); // 종료 날짜도 동일하게 설정
+  setIsModalOpen(true);
+};
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -453,10 +607,10 @@ const openProjectModal = () => {
   setIsProjectModalOpen(true);
 };
 
-const closeProjectModal = () => {
-  setIsProjectModalOpen(false);
-  setNewProjectName("");
-};
+// const closeProjectModal = () => {
+//   setIsProjectModalOpen(false);
+//   setNewProjectName("");
+// };
 
 // 이전 달로 이동
 const handlePrevMonth = () => {
@@ -476,35 +630,21 @@ const handleNextMonth = () => {
   });
 };
 
-// const handleCreateProject = () => {
-//   if (newProjectName.trim() !== "") {
-//     setProjects((prevProjects) =>
-//       prevProjects.includes("내 일정")
-//         ? [...prevProjects, newProjectName]
-//         : ["내 일정", newProjectName]
-//     );
+
+//  // 새 프로젝트 추가
+//  const handleCreateProject = () => {
+//   if (newProjectName.trim() !== "" && !projects.includes(newProjectName)) {
+//     setProjects([...projects, newProjectName]);
+//     setProjectData({
+//       ...projectData,
+//       [newProjectName]: { events: {}, todoLists: {} }
+//     });
 //     setSelectedProject(newProjectName);
 //     closeProjectModal();
 //   }
 // };
 
- // 새 프로젝트 추가
- const handleCreateProject = () => {
-  if (newProjectName.trim() !== "" && !projects.includes(newProjectName)) {
-    setProjects([...projects, newProjectName]);
-    setProjectData({
-      ...projectData,
-      [newProjectName]: { events: {}, todoLists: {} }
-    });
-    setSelectedProject(newProjectName);
-    closeProjectModal();
-  }
-};
 
-// 프로젝트 변경
-const handleProjectChange = (project) => {
-  setSelectedProject(project);
-};
 
 
 // const handleSave = () => {
@@ -590,7 +730,7 @@ const handleProjectChange = (project) => {
 const handleSave = () => {
   let currentDate = new Date(selectedStartDate);
   const endDate = new Date(selectedEndDate);
-  let updatedEvents = { ...events };
+  let updatedEvents = { ...projectData[selectedProject]?.events };
   let updatedTodos = { ...todoLists };
 
   while (currentDate <= endDate) {
@@ -598,7 +738,7 @@ const handleSave = () => {
     const newItem = {
       title: newTitle,
       type: eventType,
-      color: selectedColor,
+      color: projectData[selectedProject]?.color || "#FFCDD2",
       time: selectedTime,
       repeat: repeatOption,
       alert: alertOption,
@@ -647,25 +787,51 @@ const handleSave = () => {
         }
       }
       setEvents(updatedEvents);
-    } else if (eventType === "To-do") {
-      // ✅ To-do 추가 및 수정 로직
-      if (!updatedTodos[dateKey]) {
-        updatedTodos[dateKey] = []; // ✅ 해당 날짜의 To-do 배열이 없으면 초기화
-      }
-
-      if (editingIndex !== null) {
-        updatedTodos[dateKey][editingIndex] = newItem; // ✅ 기존 To-do 수정
-        setEditingIndex(null);
-      } else {
-        updatedTodos[dateKey].push(newItem); // ✅ 새 To-do 추가
-      }
-
-      setTodoLists(updatedTodos);
+    }else if (eventType === "To-do") {
+    // ✅ To-do 추가 및 수정 로직
+    // ✅ To-do 추가 및 수정
+    if (!updatedTodos[dateKey]) {
+      updatedTodos[dateKey] = [];
     }
+
+    if (editingIndex !== null) {
+      // ✅ 수정 모드: 기존 항목을 수정 (새로 추가하지 않음)
+      updatedTodos[dateKey] = updatedTodos[dateKey].map((todo, idx) =>
+        idx === editingIndex ? newItem : todo
+      );
+      setEditingIndex(null);
+    } else {
+      // ✅ 새 To-do 추가
+      updatedTodos[dateKey].push(newItem);
+    }
+
+    setTodoLists(updatedTodos);
+     // ✅ 프로젝트 데이터에도 동기화
+     setProjectData((prev) => ({
+      ...prev,
+      [selectedProject]: {
+        ...prev[selectedProject],
+        todoLists: {
+          ...prev[selectedProject]?.todoLists,
+          [dateKey]: updatedTodos[dateKey],
+        },
+      },
+    }));
+  }
 
     // 다음 날짜로 이동
     currentDate.setDate(currentDate.getDate() + 1);
   }
+  // ✅ 프로젝트 데이터에 직접 저장
+  setProjectData((prev) => ({
+    ...prev,
+    [selectedProject]: {
+      ...prev[selectedProject],
+      events: updatedEvents,
+      
+    },
+  }));
+  
 
   closeModal();
 };
@@ -761,7 +927,26 @@ const addEvent = async () => {
       </div>
     </div>
   )}
-    <div className="dropdown-container">
+  <div className="dropdown-container">
+    <button className="dropdown-toggle" onClick={toggleDropdown}>
+              {selectedProject} ▼
+            </button>
+            {dropdownOpen && (
+            <div className="dropdown-menu">
+              {projects.map((project, index) => (
+                <div
+                  key={index}
+                  className="dropdown-item"
+                  onClick={() => handleProjectChange(project)}
+                >
+                  {project}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+    {/* <div className="dropdown-container">
       <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
               {selectedProject} {nickname}▼
             </button>
@@ -781,7 +966,7 @@ const addEvent = async () => {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           
         {/* ✅ 캘린더 색상 선택 버튼 추가 */}
@@ -796,7 +981,7 @@ const addEvent = async () => {
         
         <div className="app-bar-right">
           <img src={alertIcon} className="icon" />
-          <img src={addProjectIcon} className="icon" onClick={openProjectModal} />
+          <img src={addProjectIcon} className="icon" onClick={() => setIsProjectModalOpen(true)} />
           <img src={timeIcon} className="icon" />
           <img src={profileIcon} className="icon" onClick={() => navigate("/mypage")} />
         
@@ -854,15 +1039,34 @@ const addEvent = async () => {
           formatShortWeekday={(locale, date) =>
             date.toLocaleDateString("en-US", { weekday: "short" }) // ✅ Mon, Tue, Wed 형태로 변경
           }
-          tileContent={({ date }) => (
-            <div className="calendar-event-container">
-              {(events[date.toDateString()] || []).slice(0, 2).map((event, idx) => (
-                <div key={idx} className="calendar-event" style={{backgroundColor: selectedColor}}>
-                  {event.title}
-                </div>
-              ))}
-            </div>
-          )}
+          // tileContent={({ date }) => (
+            
+          //   <div className="calendar-event-container">
+          //     {(events[date.toDateString()] || []).slice(0, 2).map((event, idx) => (
+          //       <div key={idx} className="calendar-event" 
+          //         style={{ backgroundColor: projectData[selectedProject]?.color || "#FFCDD2" }}> 
+          //         {event.title}
+          //       </div>
+          //     ))}
+          //   </div>
+          // )
+          tileContent={({ date }) => {
+            const dateKey = date.toDateString();
+            const dayEvents = events[dateKey] || [];
+          
+            return (
+              <div className="calendar-event-container">
+                {dayEvents.slice(0, 2).map((event, idx) => (
+                  <div key={idx} className="calendar-event"
+                    style={{ backgroundColor: event.color }}> {/* ✅ 프로젝트별 색상 적용 */}
+                    {event.title}
+                  </div>
+                ))}
+              </div>
+            );
+
+
+        }}
         />
       </div>
     </div>
@@ -954,6 +1158,33 @@ const addEvent = async () => {
       }
     }}
     >
+      {/*새 프로젝트 추가 모달*/}
+    <Modal
+        isOpen={isProjectModalOpen}
+        onRequestClose={closeProjectModal}
+        className="modal"
+        overlayClassName="overlay"
+      >
+        <div className="modal-header">
+          <button className="close-btn" onClick={closeProjectModal}> &times; </button>
+          <button className="save-btn" onClick={handleCreateProject}> ✓ </button>
+        </div>
+        <input
+          type="text"
+          placeholder="새 프로젝트 이름"
+          value={newProjectName}
+          onChange={(e) => setNewProjectName(e.target.value)}
+          className="modal-input"
+        />
+      </Modal>
+      <button className="fab" onClick={() => setIsModalOpen(true)}>
+        <FaPlus />
+      </button> 
+
+
+
+
+
         <div className="modal-header">
           <img src={exitIcon} className="close-btn" onClick={closeModal}/> 
           {/* 삭제 아이콘 추가 */}

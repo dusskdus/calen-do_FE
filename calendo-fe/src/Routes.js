@@ -2,14 +2,16 @@ import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Login from "./pages/login/Login"; // Login 페이지 import
-import WholeSchedule from "./pages/WholeSchedule"; // 로그인 성공 시 이동할 페이지 import
+import WholeSchedule from "./pages/schedule/WholeSchedule"; // 로그인 성공 시 이동할 페이지 import
 import Home from "./pages/home/Home"; // 기존 Home 페이지
 import { InvitePage } from "./pages/invite/InvitePage";
 import CreatePlan from "./pages/create/createPlan";
 import CreateTime from "./pages/create/createTime";
 import CheckTime from "./pages/check/checkTime";
-import MyPage from "./pages/MyPage";
+
+import MyPage from "./pages/mypage/MyPage";
 import Alert from "./pages/alert/alertPage";
+
 
 
 const Router = () => {
