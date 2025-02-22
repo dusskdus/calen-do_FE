@@ -1,6 +1,7 @@
 /* 전체 페이지 컨테이너 */
 .mypage-container {
     width: 100%;
+    max-width: 412px;
     height: 100vh;
     background-color: white;
     display: flex;
