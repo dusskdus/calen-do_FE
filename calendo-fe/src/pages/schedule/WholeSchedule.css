@@ -1,3 +1,9 @@
+/* 전체 너비 고정 */
+body {
+  max-width: 412px;
+  margin: 0 auto;
+}
+
 /* App Bar */
 .app-bar {
   display: flex;
@@ -20,7 +26,7 @@
 }
 
 .icon {
-  margin-right: 8px;
+  margin-right: 2px;
   color: #000;
   font-size: 22px;
   cursor: pointer;
@@ -553,8 +559,7 @@
 }
  
 
-
-/* 반응형 디자인 */
+/* 
 @media (max-width: 768px) {
  
 
@@ -614,7 +619,7 @@
     }
   }
   
- /* 반응형 디자인 */
+
 @media (max-width: 1024px) {
   .calendar-container {
     min-width: 700px;
@@ -647,7 +652,7 @@
   .event-title {
     font-size: 14px;
   }
-}
+} */
 
 
 /* 📌 일정 모달 내부 날짜 & 시간 선택 스타일 */
