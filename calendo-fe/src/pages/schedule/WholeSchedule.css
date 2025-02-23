@@ -131,14 +131,19 @@ body {
   padding: 0;
 
 }
+/* 부모 컨테이너를 기준으로 배치 */
+.schedule-container {
+  max-width: 412px;
+  margin: 0 auto;
+  position: relative; /* 🔥 상대 위치 기준 */
+}
   
-
   
 /* Floating Action Button */
 .fab {
-  position: fixed;
+  position: absolute;
   bottom: 20px;
-  right: 20px;
+  right: 5px;
   background-color: rgb(241, 128, 128);
   color: white;
   border: none;
