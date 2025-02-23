@@ -11,7 +11,7 @@ export const Container = styled.div`
     height: 100vh;
     background: #FFFDFD;
     margin: 0px auto;
-    overflow: hidden;
+    overflow: auto;
 `;
 
 export const Header = styled.div`
@@ -41,19 +41,13 @@ export const Title = styled.h1`
     margin: 0px;
 `;
 
-export const Main = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 90%;
-`;
 
 export const Body = styled.div`
     position: relative;
     margin-top: 30px;
     width: 85%;
     padding-bottom: 20px;
-    height: calc(100vh - 100px); 
+    height: 60vh; 
     overflow: auto;
 `;
 
@@ -166,4 +160,32 @@ export const SelectButton = styled.button`
     font-weight: 600;
     border: none;
     border-radius: 7px;
+`;
+
+export const Main = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    width: 90%;
+`;
+
+export const SubTitle = styled.h3`
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    text-align: center;
+    flex-grow: 1; 
+    margin: 0px;
+`;
+
+export const ProgressBarWrapper = styled.div`
+    margin: 10px 0;
+`;
+
+export const Participants = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
 `;

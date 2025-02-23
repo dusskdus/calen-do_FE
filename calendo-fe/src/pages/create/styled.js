@@ -14,7 +14,7 @@ export const Container = styled.div`
     height: 100vh;
     background: #FFFDFD;
     margin: 0px auto;
-    overflow: hidden;
+    overflow: auto;
 `;
 
 export const Header = styled.div`
@@ -100,6 +100,7 @@ export const Button = styled.button`
     width: 50%;
     padding: 12px;
     margin-top: 20px;
+    margin-bottom: 20px;
     font-size: 24px;
     font-weight: 600;
     background-color: #EA6B6B;
