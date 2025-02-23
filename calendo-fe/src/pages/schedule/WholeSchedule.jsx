@@ -270,7 +270,7 @@ const handleEditTodo = (todo, index) => {
 
   try {
     // 색상이 처음 선택된 경우 (POST 요청)
-    const response = await fetch(`/api/users/${userId}/color`, {
+    const response = await fetch(`api/projects/{projectId}/theme`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ color: newColor }),
@@ -291,7 +291,7 @@ const updateColor = async (newColor) => {
   if (!userId) return;
 
   try {
-    const response = await fetch(`/api/users/${userId}/color`, {
+    const response = await fetch(`change-theme`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ color: newColor }),
@@ -304,6 +304,63 @@ const updateColor = async (newColor) => {
     console.error("메인 테마 색상 변경 오류:", error);
   }
 };
+
+// 프로젝트 테마 색상 조회 (GET 요청)
+const fetchProjectTheme = async (projectId) => {
+  try {
+    const response = await fetch(`/api/projects/${projectId}/mainTheme`);
+    if (!response.ok) throw new Error("프로젝트 테마 색상 조회 실패");
+
+    const data = await response.json();
+    if (data.color) {
+      setSelectedColor(data.color); // 🔥 프로젝트 색상 반영
+    }
+  } catch (error) {
+    console.error("프로젝트 테마 색상 조회 오류:", error);
+  }
+};
+
+// 프로젝트 테마 색상 변경 (PUT 요청)
+const updateProjectTheme = async (projectId, newColor) => {
+  try {
+    const response = await fetch(`/api/projects/${projectId}/mainTheme`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ color: newColor }),
+    });
+
+    if (!response.ok) throw new Error("프로젝트 테마 색상 변경 실패");
+
+    // ✅ 변경된 색상을 상태에 반영
+    setProjectData((prev) => ({
+      ...prev,
+      [projectId]: {
+        ...prev[projectId],
+        color: newColor,
+      },
+    }));
+  } catch (error) {
+    console.error("프로젝트 테마 색상 변경 오류:", error);
+  }
+};
+
+// ✅ 프로젝트 변경 시 테마 색상 조회
+useEffect(() => {
+  if (selectedProject) {
+    fetchProjectTheme(selectedProject);
+  }
+}, [selectedProject]);
+
+// ✅ 색상 변경 이벤트
+// const handleColorChange = async (e) => {
+//   const newColor = e.target.value;
+//   setSelectedColor(newColor);
+
+//   if (selectedProject) {
+//     await updateProjectTheme(selectedProject, newColor);
+//   }
+// };
+
 
 
   useEffect(() => {
