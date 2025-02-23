@@ -4,7 +4,7 @@ import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import { FaUser, FaBell, FaCog, FaPlus, FaTrash, FaCheckCircle, FaTimes, FaClock, FaFileAlt } from "react-icons/fa"; 
-import "../schedule/WholeSchedule.css";
+import "./WholeSchedule.css";
 import trashIcon from "../../assets/images/trash.svg";
 import addMemberIcon from "../../assets/images/addmember.svg";
 import addProjectIcon from "../../assets/images/addproject.svg";

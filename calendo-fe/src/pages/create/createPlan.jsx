@@ -10,7 +10,7 @@ dayjs.locale("ko");
 
 function CreatePlan() {
     const navigate = useNavigate();
-    const [date, setDate] = useState(new Date());
+    const [date, setDate] = useState(null);
     const [startTime, setStartTime] = useState("9:00 AM");
     const [endTime, setEndTime] = useState("22:00 PM");
     const today = new Date();

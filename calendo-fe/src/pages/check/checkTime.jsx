@@ -82,7 +82,7 @@ function CheckTime() {
                 </S.Table>
             </S.Body>
             <S.Bottom>
-                <S.SelectButton>수정하기</S.SelectButton>
+                <S.SelectButton onClick={()=> navigate(-1)}>수정하기</S.SelectButton>
             </S.Bottom>
         </S.Container>
     );

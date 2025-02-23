@@ -163,15 +163,15 @@ export const StyledCalendar = styled(Calendar)`
 
     /* 오늘 날짜 */
     .react-calendar__tile--now {
-        background: #FFE3E3 !important;
+        background:rgb(255, 190, 190) !important;
         font-weight: bold !important;
         color: #ff6b6b !important;
-        border-radius: 8px !important;
+        border-radius: 35px !important;
     }
 
     /* 선택된 날짜 */
     .react-calendar__tile--active {
-        background: #EA6B6B !important;
+        background:rgb(231, 104, 104) !important;
         color: white !important;
         font-weight: bold !important;
         border-radius: 35px !important;
@@ -179,7 +179,7 @@ export const StyledCalendar = styled(Calendar)`
 
     /* hover 시 스타일 */
     .react-calendar__tile:hover {
-        background: #ff6b6b33 !important;
+        background:rgba(255, 107, 107, 0.53) !important;
         border-radius: 35px !important;
     }
 `;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect }  from "react";
 import { useNavigate } from "react-router-dom";
-import "../mypage/MyPage.css";
+import "./MyPage.css";
 import bigprofileIcon from "../../assets/images/bigprofile.svg"; // 기본 프로필 아이콘
 import backIcon from "../../assets/images/backicon.svg";
 
