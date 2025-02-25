@@ -97,6 +97,10 @@ const closeProjectModal = () => {
   setNewProjectName("");
 };
 
+useEffect(() => {
+  console.log("페이지가 정상적으로 라우팅되는지 확인");
+}, []);
+
 
 // ✅ 선택된 프로젝트의 일정만 보여주도록 변경
 // const currentEvents = selectedProject === defaultProject
@@ -1038,9 +1042,9 @@ const addEvent = async () => {
         </div>
         
         <div className="app-bar-right">
-          <img src={alertIcon} className="icon" />
+          <img src={alertIcon} className="icon" onClick={() => navigate("/alert")}/>
           <img src={addProjectIcon} className="icon" onClick={() => setIsProjectModalOpen(true)} />
-          <img src={timeIcon} className="icon" />
+          <img src={timeIcon} className="icon" onClick={() => navigate("/plan")}/>
           <img src={profileIcon} className="icon" onClick={() => navigate("/mypage")} />
         
         </div>

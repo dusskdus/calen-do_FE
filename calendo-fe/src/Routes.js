@@ -16,8 +16,7 @@ import Alert from "./pages/alert/alertPage";
 
 const Router = () => {
     return (
-        <BrowserRouter>
-            <div>
+       
                 <Routes>
                     <Route path="/" element={<WholeSchedule />} /> {/* 기본 경로는 로그인 페이지 */}
                     <Route path="/whole-schedule" element={<WholeSchedule />} /> {/* 로그인 성공 시 이동할 페이지 */}
@@ -29,8 +28,7 @@ const Router = () => {
                     <Route path="/mypage" element={<MyPage />} />
                     <Route path="/alert" element={<Alert />} />
                 </Routes>
-            </div>
-        </BrowserRouter>
+           
     );
 };
 
