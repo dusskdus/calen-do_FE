@@ -7,6 +7,7 @@ const OAuthRedirectHandler = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const token = queryParams.get("token"); // 백엔드에서 토큰을 전달해야 함
+    console.log("Received token:", token); // ✅ 콘솔에서 확인
 
     if (token) {
       localStorage.setItem("access_token", token); // ✅ 토큰 저장
