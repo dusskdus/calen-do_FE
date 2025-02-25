@@ -9,7 +9,7 @@ import CreatePlan from "./pages/create/createPlan";
 import CreateTime from "./pages/create/createTime";
 import CheckTime from "./pages/check/checkTime";
 
-import MyPage from "./pages/myPage/MyPage";
+import MyPage from "./pages/mypage/MyPage";
 import Alert from "./pages/alert/alertPage";
 
 
