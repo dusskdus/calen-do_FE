@@ -7,10 +7,20 @@ import googleIcon from "../../assets/images/google.svg";
 const Login = () => {
   const navigate = useNavigate();
 
-  const handleGoogleLogin = () => {
-    // 🔥 OAuth2 로그인 요청 (리디렉트 방식)
-    window.location.href = "/oauth2/authorization/google";
-  };
+  // const handleGoogleLogin = () => {
+  //   // 🔥 OAuth2 로그인 요청 (리디렉트 방식)
+  //   window.location.href = "/oauth2/authorization/google";
+  // };
+
+
+  // const handleLogin = () => {
+  //   // 구글 로그인 화면으로 이동시키기
+  //   window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?
+	// 	client_id=${process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID}
+	// 	&redirect_uri=${process.env.REACT_APP_GOOGLE_AUTH_REDIRECT_URI}
+	// 	&response_type=code
+	// 	&scope=email profile`;
+  // };
 
   // const handleGoogleLogin = async () => {
   //   try {
@@ -49,6 +59,42 @@ const Login = () => {
   //     alert("로그인에 실패했습니다.");
   //   }
   // };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const response = await fetch("/oauth2/authorization/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("로그인 실패");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("access_token", data.access_token);
+      const userEmail = data.email;
+      const nickname = userEmail.split("@")[0];
+
+      // 닉네임 설정
+      await fetch(`/api/users/check-nickname?nickname=${nickname}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${data.access_token}`,
+        },
+      });
+
+      localStorage.setItem("email", userEmail);
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("userId", data.id);
+
+      navigate("/whole-schedule");
+    } catch (error) {
+      console.error("로그인 오류:", error);
+      alert("로그인에 실패했습니다.");
+    }
+  };
 
   return (
     <div className="login-container">
