@@ -1,20 +1,23 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import * as S from "./styled"
 import backIcon from "../../assets/icons/backbtn.svg";
-
+import ProgressBar from "../../components/current/progressBar";
+import ParticipantsBlock from "../../components/current/participantBlock";
 
 function CheckTime() {
     const navigate = useNavigate();
     const location = useLocation();
     const { date, startTime, endTime, selectedTimes } = location.state || {};
+    
+    // 목업 데이터: 총 인원 및 참가자 목록
+    const headCount = 5; // 총 5명
+    const participants = ["Alice", "Bob", "Charlie"]; // 현재 3명 참여
 
     console.log("date", date)
     console.log("전달", selectedTimes)
 
-    // 선택된 시간이 없으면 빈 Set으로 초기화
     const selectedSet = new Set(selectedTimes || []);
 
-    //시간 목록 생성
     const generateTimeSlots = () => {
         if (!startTime || !endTime) return [];
         const times = [];
@@ -29,7 +32,6 @@ function CheckTime() {
         return times;
     };
 
-    //날짜 목록 생성
     const generateDateColumns = () => {
         if (!date || !Array.isArray(date)) return [];
         const [startDate, endDate] = date;
@@ -81,12 +83,25 @@ function CheckTime() {
                     </tbody>
                 </S.Table>
             </S.Body>
+            <S.Main>
+                <S.SubTitle>현재 참여자</S.SubTitle>
+                <ProgressBar headCount={headCount} participants={participants} />
+                <S.Participants>
+                    {participants.map((participant, index) => (
+                        <ParticipantsBlock key={index} participant={participant} />
+                    ))}
+                    
+                    {/* 아직 참여하지 않은 자리 표시 */}
+                    {Array(headCount - participants.length).fill("?").map((_, index) => (
+                        <ParticipantsBlock key={`empty-${index}`} participant="?" />
+                    ))}
+                </S.Participants>
+            </S.Main>
             <S.Bottom>
-                <S.SelectButton>수정하기</S.SelectButton>
+                <S.SelectButton onClick={()=> navigate(-1)}>수정하기</S.SelectButton>
             </S.Bottom>
         </S.Container>
     );
-
 }
 
 export default CheckTime;
