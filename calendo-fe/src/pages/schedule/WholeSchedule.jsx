@@ -58,6 +58,7 @@ const WholeSchedule = () => {
     [defaultProject]: { events: {}, todoLists: {} },
   });
 
+  
   useEffect(() => {
     setProjects((prev) => {
       if (!prev.includes(defaultProject)) {
@@ -968,7 +969,6 @@ const addEvent = async () => {
   };
 
   return (
-    <div className="whole-schedule">
     <div className="schedule-container">
       {/* App Bar */}
       <div className="app-bar">
@@ -1038,9 +1038,9 @@ const addEvent = async () => {
         </div>
         
         <div className="app-bar-right">
-          <img src={alertIcon} className="icon" />
+          <img src={alertIcon} className="icon" onClick={() => navigate("/alert")}/>
           <img src={addProjectIcon} className="icon" onClick={() => setIsProjectModalOpen(true)} />
-          <img src={timeIcon} className="icon" />
+          <img src={timeIcon} className="icon" onClick={() => navigate("/plan")}/>
           <img src={profileIcon} className="icon" onClick={() => navigate("/mypage")} />
         
         </div>
@@ -1413,7 +1413,6 @@ const addEvent = async () => {
         </div>
       </Modal>
       )}
-    </div>
     </div>
   );
 };
