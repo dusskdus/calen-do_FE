@@ -8,23 +8,42 @@ const MyPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({ email: "" });
   const userId = localStorage.getItem("userId"); // ✅ 저장된 사용자 ID 가져오기
+  const accessToken = localStorage.getItem("access_token"); // ✅ 저장된 토큰 가져오기
 
 
-  useEffect(() => {
-    if (!userId) return;
+//   useEffect(() => {
+//     if (!userId) return;
   
-    // ✅ 사용자 정보 조회 (GET 요청)
-    fetch(`/api/users/me`, {
-      method: "GET", // 🔥 POST → GET 변경
-      headers: { "Content-Type": "application/json" },
-    })
-      .then(response => response.json())
-      .then(data => setUser(data))
-      .catch(error => console.error("사용자 정보를 불러오지 못했습니다.", error));
-  }, [userId]);
+//     // ✅ 사용자 정보 조회 (GET 요청)
+//     fetch(`/api/users/me`, {
+//       method: "GET", // 🔥 POST → GET 변경
+//       headers: { "Content-Type": "application/json" },
+//     })
+//       .then(response => response.json())
+//       .then(data => setUser(data))
+//       .catch(error => console.error("사용자 정보를 불러오지 못했습니다.", error));
+//   }, [userId]);
 
-  // ✅ 이메일에서 닉네임 추출 (@ 앞부분)
+//   // ✅ 이메일에서 닉네임 추출 (@ 앞부분)
+// const nickname = user.email ? user.email.split("@")[0] : "unknown";
+
+useEffect(() => {
+  if (!accessToken) return;
+
+  fetch(`/api/users/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`, // ✅ 토큰 포함
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => setUser(data))
+    .catch((error) => console.error("사용자 정보를 불러오지 못했습니다.", error));
+}, [accessToken]);
+
 const nickname = user.email ? user.email.split("@")[0] : "unknown";
+
 
 
   return (

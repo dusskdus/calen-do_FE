@@ -5,7 +5,6 @@ body {
 }
 
 /* App Bar */
-  
 .app-bar {
   display: flex;
   justify-content: space-between;

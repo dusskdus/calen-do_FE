@@ -98,6 +98,10 @@ const closeProjectModal = () => {
   setNewProjectName("");
 };
 
+useEffect(() => {
+  console.log("페이지가 정상적으로 라우팅되는지 확인");
+}, []);
+
 
 // ✅ 선택된 프로젝트의 일정만 보여주도록 변경
 // const currentEvents = selectedProject === defaultProject
@@ -148,8 +152,19 @@ useEffect(() => {
     setTodoLists(mergedTodos);
   } else {
     // ✅ 선택한 프로젝트의 일정만 표시
-    setEvents(projectData[selectedProject]?.events || {});
-    setTodoLists(projectData[selectedProject]?.todoLists || {});
+    // setEvents(projectData[selectedProject]?.events || {});
+    // setTodoLists(projectData[selectedProject]?.todoLists || {});
+    if (selectedProject !== defaultProject) {
+      setEvents(() => {
+        const updatedEvents = projectData[selectedProject]?.events || {};
+        return Object.fromEntries(
+          Object.entries(updatedEvents).map(([date, eventList]) => [
+            date,
+            eventList.map(event => ({ ...event, color: projectData[selectedProject]?.color || "#FFCDD2" })), // ✅ 현재 프로젝트 일정만 변경
+          ])
+        );
+      });
+    }
   }
 }, [selectedProject, projectData]);
 
@@ -264,8 +279,37 @@ const handleEditTodo = (todo, index) => {
       [selectedProject]: {
         ...prev[selectedProject],
         color: newColor,
+        events: Object.fromEntries(
+          Object.entries(prev[selectedProject]?.events || {}).map(([date, eventList]) => [
+            date,
+            eventList.map(event => ({ ...event, color: newColor })), // 🔥 일정 색상 변경
+          ])
+        ),
       },
     }));
+    
+    // setEvents((prev) => {
+    //   return Object.fromEntries(
+    //     Object.entries(prev).map(([date, eventList]) => [
+    //       date,
+    //       eventList.map(event => ({ ...event, color: newColor })), // 🔥 즉시 반영
+    //     ])
+    //   );
+    // }
+    if (selectedProject !== defaultProject) {
+      setEvents((prev) => ({
+        ...prev,
+        ...Object.fromEntries(
+          Object.entries(prev).map(([date, eventList]) => [
+            date,
+            eventList.map(event =>
+              event.color === projectData[selectedProject]?.color ? { ...event, color: newColor } : event
+            ),
+          ])
+        ),
+      }));
+    };
+    
 
   if (!userId) return;
 
@@ -315,6 +359,32 @@ const fetchProjectTheme = async (projectId) => {
     const data = await response.json();
     if (data.color) {
       setSelectedColor(data.color); // 🔥 프로젝트 색상 반영
+
+
+
+      setEvents((prev) => {
+        return Object.fromEntries(
+          Object.entries(prev).map(([date, eventList]) => [
+            date,
+            eventList.map(event => ({ ...event, color: data.color })), // ✅ 색상 업데이트
+          ])
+        );
+      });
+
+      setProjectData((prev) => ({
+        ...prev,
+        [projectId]: {
+          ...prev[projectId],
+          color: data.color,
+        },
+      }));
+
+
+
+
+
+
+
     }
   } catch (error) {
     console.error("프로젝트 테마 색상 조회 오류:", error);
