@@ -149,6 +149,10 @@ export const StyledCalendar = styled(Calendar)`
         color: rgb(163, 163, 163) !important;
     }
 
+    .react-calendar__month-view__weekdays {
+    padding: 0;
+}
+
     .react-calendar__month-view__weekdays abbr[title] {
         text-decoration: none !important; /* ✅ 점선 제거 */
         border-bottom: none !important; /* ✅ 혹시 모를 밑줄 제거 */
@@ -157,9 +161,10 @@ export const StyledCalendar = styled(Calendar)`
     /* 날짜 선택 */
     .react-calendar__tile {
         border-radius: 8px !important;
-        padding: 10px !important;
+        padding: 9px !important;
         background: transparent !important;
         transition: 0.3s !important;
+        height: auto !important;
     }
 
     /* 오늘 날짜 */
@@ -168,6 +173,21 @@ export const StyledCalendar = styled(Calendar)`
         font-weight: bold !important;
         color: #ff6b6b !important;
         border-radius: 35px !important;
+    }
+
+    .react-calendar__tile--now abbr {
+        color:rgb(255, 255, 255) !important;    
+        background:rgb(255, 190, 190) !important;
+        border-radius: 50%;
+        width: 0;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .react-calendar__tile--now abbr:hover {
+        background:rgba(255, 107, 107, 0.53) !important;
     }
 
     /* 선택된 날짜 */
@@ -183,6 +203,13 @@ export const StyledCalendar = styled(Calendar)`
         background:rgba(255, 107, 107, 0.53) !important;
         border-radius: 35px !important;
     }
+
+    .react-calendar__tile abbr {
+    font-size: 13px;
+    margin-bottom: 0px;
+}
+
+    
 `;
 
 

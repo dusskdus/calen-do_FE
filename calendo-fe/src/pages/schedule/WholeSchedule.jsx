@@ -58,6 +58,7 @@ const WholeSchedule = () => {
     [defaultProject]: { events: {}, todoLists: {} },
   });
 
+  
   useEffect(() => {
     setProjects((prev) => {
       if (!prev.includes(defaultProject)) {
@@ -1038,7 +1039,6 @@ const addEvent = async () => {
   };
 
   return (
-    <div className="whole-schedule">
     <div className="schedule-container">
       {/* App Bar */}
       <div className="app-bar">
@@ -1483,7 +1483,6 @@ const addEvent = async () => {
         </div>
       </Modal>
       )}
-    </div>
     </div>
   );
 };
